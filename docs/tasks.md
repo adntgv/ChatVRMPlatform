@@ -7,9 +7,10 @@ This document tracks all development tasks for transforming ChatVRM from a demo 
 **Sprint Goal**: Technical Debt Resolution & Quick Wins (2-4 weeks)
 **Start Date**: 2025-07-14
 
-### Active Tasks
-- [ ] Set up testing framework (Jest, React Testing Library) - **NEXT**
-- [ ] Allow users to upload custom VRM files - **HIGH PRIORITY**
+### Active Tasks - SPRINT 1 COMPLETED! 🎉
+- [x] Set up testing framework (Jest, React Testing Library) - **COMPLETED 2025-07-14**
+- [x] Allow users to upload custom VRM files - **COMPLETED 2025-07-14**
+- [x] Implement VRM file persistence with IndexedDB - **COMPLETED 2025-07-14**
 
 ## Task List
 
@@ -24,8 +25,11 @@ ChatVRM is currently a proof-of-concept demo application showcasing 3D character
 ## Quick Wins & Technical Debt (Sprint 1-2: 2-4 weeks)
 
 ### Technical Debt Resolution
-- [ ] Set up testing framework (Jest, React Testing Library)
-- [ ] Write tests for existing core functionality
+- [x] Set up testing framework (Jest, React Testing Library) - **COMPLETED 2025-07-14**
+- [x] Write tests for existing core functionality - **COMPLETED 2025-07-14**
+  - ✅ Messages/screenplay processing tests
+  - ✅ MessageInputContainer tests (speech recognition, text input)
+  - ✅ VrmUpload component tests
 - [ ] Implement proper state management (Zustand/Redux)
 - [ ] Move hardcoded configuration to environment variables
 - [ ] Add TypeScript strict mode
@@ -33,7 +37,19 @@ ChatVRM is currently a proof-of-concept demo application showcasing 3D character
 - [ ] Add proper logging system
 
 ### Quick Demo Improvements
-- [ ] Allow users to upload custom VRM files
+- [x] Allow users to upload custom VRM files - **COMPLETED 2025-07-14**
+  - ✅ Enhanced VrmUpload component with drag & drop
+  - ✅ File validation (extension, size limits)
+  - ✅ Error handling and user feedback
+  - ✅ Loading states during VRM processing
+  - ✅ Integration with existing menu system
+- [x] Implement VRM file persistence - **COMPLETED 2025-07-14**
+  - ✅ IndexedDB storage for VRM files (up to 50MB per file)
+  - ✅ VrmManager component for browsing saved VRMs
+  - ✅ Automatic persistence on upload
+  - ✅ Storage usage tracking and management
+  - ✅ Last used VRM quick-load functionality
+  - ✅ File deletion and cleanup capabilities
 - [ ] Expose emotion/animation controls to users
 - [ ] Add voice selection options for TTS
 - [ ] Improve character introduction experience

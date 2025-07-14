@@ -6,6 +6,9 @@ import React, { useCallback, useContext, useRef, useState } from "react";
 import { Settings } from "./settings";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { AssistantText } from "./assistantText";
+import { VrmUpload } from "./vrmUpload";
+import { VrmManager } from "./vrmManager";
+import { useVrmPersistence } from "@/hooks/useVrmPersistence";
 
 type Props = {
   openAiKey: string;
@@ -39,8 +42,26 @@ export const Menu = ({
 }: Props) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
+  const [showVrmUpload, setShowVrmUpload] = useState(false);
+  const [showVrmManager, setShowVrmManager] = useState(false);
+  const [isVrmLoading, setIsVrmLoading] = useState(false);
   const { viewer } = useContext(ViewerContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // VRM persistence hook
+  const { loadLastUsedVrm } = useVrmPersistence({
+    onVrmLoad: async (url: string) => {
+      setIsVrmLoading(true);
+      try {
+        await viewer.loadVrm(url);
+      } catch (error) {
+        console.error('Failed to load VRM:', error);
+      } finally {
+        setIsVrmLoading(false);
+      }
+    },
+    autoLoadLastUsed: false, // We'll manually trigger this
+  });
 
   const handleChangeSystemPrompt = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -98,6 +119,18 @@ export const Menu = ({
     [viewer]
   );
 
+  const handleVrmLoad = useCallback(async (url: string) => {
+    setIsVrmLoading(true);
+    try {
+      await viewer.loadVrm(url);
+      setShowVrmUpload(false);
+    } catch (error) {
+      console.error('Failed to load VRM:', error);
+    } finally {
+      setIsVrmLoading(false);
+    }
+  }, [viewer]);
+
   return (
     <>
       <div className="absolute z-10 m-24">
@@ -108,6 +141,24 @@ export const Menu = ({
             isProcessing={false}
             onClick={() => setShowSettings(true)}
           ></IconButton>
+          <IconButton
+            iconName="24/Add"
+            label="VRMアップロード"
+            isProcessing={isVrmLoading}
+            onClick={() => setShowVrmUpload(true)}
+          />
+          <IconButton
+            iconName="24/Menu"
+            label="VRM管理"
+            isProcessing={false}
+            onClick={() => setShowVrmManager(true)}
+          />
+          <IconButton
+            iconName="24/CommentFill"
+            label="最後のVRM"
+            isProcessing={isVrmLoading}
+            onClick={loadLastUsedVrm}
+          />
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
@@ -127,6 +178,34 @@ export const Menu = ({
         </div>
       </div>
       {showChatLog && <ChatLog messages={chatLog} />}
+      {showVrmUpload && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">VRMファイルアップロード</h2>
+              <button
+                onClick={() => setShowVrmUpload(false)}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={isVrmLoading}
+              >
+                ✕
+              </button>
+            </div>
+            <VrmUpload
+              onVrmLoad={handleVrmLoad}
+              isLoading={isVrmLoading}
+              disabled={isVrmLoading}
+              saveToStorage={true}
+            />
+          </div>
+        </div>
+      )}
+      {showVrmManager && (
+        <VrmManager
+          onVrmSelect={handleVrmLoad}
+          onClose={() => setShowVrmManager(false)}
+        />
+      )}
       {showSettings && (
         <Settings
           openAiKey={openAiKey}
