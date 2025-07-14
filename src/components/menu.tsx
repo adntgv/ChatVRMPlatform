@@ -137,39 +137,39 @@ export const Menu = ({
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
-            label="設定"
+            label="Settings"
             isProcessing={false}
             onClick={() => setShowSettings(true)}
           ></IconButton>
           <IconButton
             iconName="24/Add"
-            label="VRMアップロード"
+            label="VRM Upload"
             isProcessing={isVrmLoading}
             onClick={() => setShowVrmUpload(true)}
           />
           <IconButton
             iconName="24/Menu"
-            label="VRM管理"
+            label="VRM Manager"
             isProcessing={false}
             onClick={() => setShowVrmManager(true)}
           />
           <IconButton
             iconName="24/CommentFill"
-            label="最後のVRM"
+            label="Last VRM"
             isProcessing={isVrmLoading}
             onClick={loadLastUsedVrm}
           />
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
-              label="会話ログ"
+              label="Chat Log"
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
             />
           ) : (
             <IconButton
               iconName="24/CommentFill"
-              label="会話ログ"
+              label="Chat Log"
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
@@ -182,7 +182,7 @@ export const Menu = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">VRMファイルアップロード</h2>
+              <h2 className="text-lg font-semibold">VRM File Upload</h2>
               <button
                 onClick={() => setShowVrmUpload(false)}
                 className="text-gray-500 hover:text-gray-700"

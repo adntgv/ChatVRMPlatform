@@ -44,7 +44,7 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
   const handleDeleteVrm = useCallback(async (id: string, event: React.MouseEvent) => {
     event.stopPropagation();
     
-    if (!confirm('このVRMファイルを削除しますか？')) {
+    if (!confirm('Do you want to delete this VRM file?')) {
       return;
     }
 
@@ -79,7 +79,7 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
           <div className="text-center">
-            <div className="text-lg font-semibold mb-4">VRMファイルを読み込み中...</div>
+            <div className="text-lg font-semibold mb-4">Loading VRM files...</div>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           </div>
         </div>
@@ -91,7 +91,7 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">保存されたVRMファイル</h2>
+          <h2 className="text-xl font-semibold">Saved VRM Files</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-xl"
@@ -104,7 +104,7 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
         {storageInfo && (
           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
             <div className="text-sm text-gray-600">
-              ストレージ使用量: {formatFileSize(storageInfo.used)} / {formatFileSize(storageInfo.available)}
+              Storage usage: {formatFileSize(storageInfo.used)} / {formatFileSize(storageInfo.available)}
             </div>
             <div className="mt-1 w-full bg-gray-200 rounded-full h-2">
               <div 
@@ -120,9 +120,9 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
         {vrmFiles.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-6xl mb-4">📁</div>
-            <div className="text-gray-600 mb-4">保存されたVRMファイルがありません</div>
+            <div className="text-gray-600 mb-4">No saved VRM files</div>
             <div className="text-sm text-gray-500">
-              VRMファイルをアップロードすると、ここに表示されます
+              VRM files will appear here when uploaded
             </div>
           </div>
         ) : (
@@ -139,13 +139,13 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
                       {file.name}
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
-                      サイズ: {formatFileSize(file.size)}
+                      Size: {formatFileSize(file.size)}
                     </div>
                     <div className="text-xs text-gray-400 mt-1">
-                      アップロード: {formatDate(file.uploadedAt)}
+                      Uploaded: {formatDate(file.uploadedAt)}
                     </div>
                     <div className="text-xs text-gray-400">
-                      最終使用: {formatDate(file.lastUsed)}
+                      Last used: {formatDate(file.lastUsed)}
                     </div>
                   </div>
                   
@@ -154,7 +154,7 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
                       onClick={(e) => handleDeleteVrm(file.id, e)}
                       className="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded border border-red-300 hover:border-red-500"
                     >
-                      削除
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export const VrmManager: React.FC<VrmManagerProps> = ({ onVrmSelect, onClose }) 
 
         <div className="mt-6 flex justify-center">
           <TextButton onClick={onClose}>
-            閉じる
+            Close
           </TextButton>
         </div>
       </div>

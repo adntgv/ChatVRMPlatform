@@ -25,20 +25,20 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
     // Check file extension
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     if (fileExtension !== 'vrm') {
-      setError('ファイル形式が正しくありません。VRMファイルを選択してください。');
+      setError('Incorrect file format. Please select a VRM file.');
       return false;
     }
 
     // Check file size (limit to 50MB)
     const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      setError('ファイルサイズが大きすぎます。50MB以下のファイルを選択してください。');
+      setError('File size too large. Please select a file under 50MB.');
       return false;
     }
 
     // Check MIME type if available
     if (file.type && !file.type.includes('octet-stream') && file.type !== 'model/gltf-binary') {
-      setError('ファイル形式が正しくありません。VRMファイルを選択してください。');
+      setError('Incorrect file format. Please select a VRM file.');
       return false;
     }
 
@@ -64,7 +64,7 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
       }
       setError(null);
     } catch (err) {
-      setError('ファイルの読み込みに失敗しました。');
+      setError('Failed to load file.');
       console.error('VRM file processing error:', err);
     }
   }, [onVrmLoad, saveToStorage]);
@@ -128,7 +128,7 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
           <div className="text-4xl">📁</div>
           {isLoading ? (
             <div className="space-y-2">
-              <div className="text-sm text-gray-600">VRMファイルを読み込み中...</div>
+              <div className="text-sm text-gray-600">Loading VRM file...</div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div className="bg-blue-600 h-2 rounded-full animate-pulse w-1/2"></div>
               </div>
@@ -136,10 +136,10 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
           ) : (
             <>
               <div className="text-sm text-gray-600">
-                VRMファイルをドラッグ&amp;ドロップ
+                Drag &amp; drop VRM file
               </div>
               <div className="text-xs text-gray-500">
-                または、クリックしてファイルを選択
+                Or click to select file
               </div>
             </>
           )}
@@ -152,7 +152,7 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
           onClick={handleButtonClick}
           disabled={disabled || isLoading}
         >
-          {isLoading ? 'VRM読み込み中...' : 'VRMファイルを選択'}
+          {isLoading ? 'Loading VRM...' : 'Select VRM File'}
         </TextButton>
       </div>
 
@@ -165,9 +165,9 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
 
       {/* File Constraints Info */}
       <div className="text-xs text-gray-500 space-y-1">
-        <div>• 対応形式: .vrm</div>
-        <div>• 最大ファイルサイズ: 50MB</div>
-        <div>• VRM 1.0形式を推奨</div>
+        <div>• Supported format: .vrm</div>
+        <div>• Maximum file size: 50MB</div>
+        <div>• VRM 1.0 format recommended</div>
       </div>
 
       {/* Hidden File Input */}

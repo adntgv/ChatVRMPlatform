@@ -15,7 +15,7 @@ export default async function handler(
   if (!apiKey) {
     res
       .status(400)
-      .json({ message: "APIキーが間違っているか、設定されていません。" });
+      .json({ message: "API key is incorrect or not configured." });
 
     return;
   }
@@ -32,7 +32,7 @@ export default async function handler(
   });
 
   const [aiRes] = data.choices;
-  const message = aiRes.message?.content || "エラーが発生しました";
+  const message = aiRes.message?.content || "An error occurred";
 
   res.status(200).json({ message: message });
 }

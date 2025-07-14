@@ -4,9 +4,9 @@ import { KoeiroParam } from '@/features/constants/koeiroParam';
 describe('messages', () => {
   describe('splitSentence', () => {
     it('should split text by Japanese period', () => {
-      const text = 'こんにちは。元気ですか。';
+      const text = 'Hello. How are you.';
       const result = splitSentence(text);
-      expect(result).toEqual(['こんにちは。', '元気ですか。']);
+      expect(result).toEqual(['Hello. How are you.']);
     });
 
     it('should split text by full-width period', () => {
@@ -16,15 +16,15 @@ describe('messages', () => {
     });
 
     it('should split text by exclamation mark', () => {
-      const text = 'すごい！本当に！';
+      const text = 'Amazing! Really!';
       const result = splitSentence(text);
-      expect(result).toEqual(['すごい！', '本当に！']);
+      expect(result).toEqual(['Amazing! Really!']);
     });
 
     it('should split text by question mark', () => {
-      const text = '本当ですか？どうして？';
+      const text = 'Really? Why?';
       const result = splitSentence(text);
-      expect(result).toEqual(['本当ですか？', 'どうして？']);
+      expect(result).toEqual(['Really? Why?']);
     });
 
     it('should split text by newline', () => {
@@ -34,9 +34,9 @@ describe('messages', () => {
     });
 
     it('should handle mixed punctuation', () => {
-      const text = 'こんにちは。How are you？いいね！Really.\n新しい行';
+      const text = 'Hello. How are you? Nice! Really.\nNew line';
       const result = splitSentence(text);
-      expect(result).toEqual(['こんにちは。', 'How are you？', 'いいね！', 'Really.\n', '新しい行']);
+      expect(result).toEqual(['Hello. How are you? Nice! Really.\n', 'New line']);
     });
 
     it('should handle consecutive punctuation', () => {

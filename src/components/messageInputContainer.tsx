@@ -7,9 +7,9 @@ type Props = {
 };
 
 /**
- * テキスト入力と音声入力を提供する
+ * Provides text and voice input
  *
- * 音声認識の完了時は自動で送信し、返答文の生成中は入力を無効化する
+ * Automatically sends when voice recognition is complete, disables input during response generation
  *
  */
 export const MessageInputContainer = ({
@@ -21,23 +21,23 @@ export const MessageInputContainer = ({
     useState<SpeechRecognition>();
   const [isMicRecording, setIsMicRecording] = useState(false);
 
-  // 音声認識の結果を処理する
+  // Process voice recognition results
   const handleRecognitionResult = useCallback(
     (event: SpeechRecognitionEvent) => {
       const text = event.results[0][0].transcript;
       setUserMessage(text);
 
-      // 発言の終了時
+      // When speech ends
       if (event.results[0].isFinal) {
         setUserMessage(text);
-        // 返答文の生成を開始
+        // Start response generation
         onChatProcessStart(text);
       }
     },
     [onChatProcessStart]
   );
 
-  // 無音が続いた場合も終了する
+  // End recognition if silence continues
   const handleRecognitionEnd = useCallback(() => {
     setIsMicRecording(false);
   }, []);
@@ -62,14 +62,14 @@ export const MessageInputContainer = ({
     const SpeechRecognition =
       window.webkitSpeechRecognition || window.SpeechRecognition;
 
-    // FirefoxなどSpeechRecognition非対応環境対策
+    // Handle environments that don't support SpeechRecognition like Firefox
     if (!SpeechRecognition) {
       return;
     }
     const recognition = new SpeechRecognition();
-    recognition.lang = "ja-JP";
-    recognition.interimResults = true; // 認識の途中結果を返す
-    recognition.continuous = false; // 発言の終了時に認識を終了する
+    recognition.lang = "en-US";
+    recognition.interimResults = true; // Return interim recognition results
+    recognition.continuous = false; // End recognition when speech ends
 
     recognition.addEventListener("result", handleRecognitionResult);
     recognition.addEventListener("end", handleRecognitionEnd);

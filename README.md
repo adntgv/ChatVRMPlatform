@@ -1,48 +1,48 @@
 # ChatVRM
 
-ChatVRMは、技術共有およびデモンストレーションを主目的としたプロジェクトです。
+ChatVRM is a project primarily aimed at technology sharing and demonstration.
 
-本レポジトリは、2024-07-18時点のコードを持ってアーカイブされました。
-今後、ChatVRMに対して変更を加えたい場合、フォークを行って開発いただけますと幸いです。
+This repository was archived with code as of 2024-07-18.
+If you want to make changes to ChatVRM in the future, please fork the repository for development.
 
-また、関連プロジェクトとして [local-chat-vrm](https://github.com/pixiv/local-chat-vrm) も公開しています。
-local-chat-vrmは返答文の生成と読み上げ音声の生成をブラウザ上で実行できるアプリケーションです。ただし英語での応答のみに対応しており、日本語はご利用いただけません。
+We also have a related project [local-chat-vrm](https://github.com/pixiv/local-chat-vrm).
+local-chat-vrm is an application that can generate responses and speech synthesis in the browser. However, it only supports English responses and Japanese is not available.
 
 ---
 
-ChatVRMはブラウザで簡単に3Dキャラクターと会話ができるデモアプリケーションです。
+ChatVRM is a demo application that allows easy conversation with 3D characters in a browser.
 
-VRMファイルをインポートしてキャラクターに合わせた声の調整や、感情表現を含んだ返答文の生成などを行うことができます。
+You can import VRM files to adjust voices to match characters and generate responses with emotional expressions.
 
-ChatVRMの各機能は主に以下の技術を使用しています。
+ChatVRM's features primarily use the following technologies:
 
-- ユーザーの音声の認識
+- User voice recognition
     - [Web Speech API(SpeechRecognition)](https://developer.mozilla.org/ja/docs/Web/API/SpeechRecognition)
-- 返答文の生成
+- Response generation
     - [ChatGPT API](https://platform.openai.com/docs/api-reference/chat)
-- 読み上げ音声の生成
+- Speech synthesis
     - [Koemotion/Koeiromap API](https://koemotion.rinna.co.jp/)
-- 3Dキャラクターの表示
+- 3D character display
     - [@pixiv/three-vrm](https://github.com/pixiv/three-vrm)
 
-## 実行
-ローカル環境で実行する場合はこのリポジトリをクローンするか、ダウンロードしてください。
+## Running
+To run in a local environment, clone or download this repository.
 
 ```bash
 git clone git@github.com:pixiv/ChatVRM.git
 ```
 
-必要なパッケージをインストールしてください。
+Install the required packages.
 ```bash
 npm install
 ```
 
-パッケージのインストールが完了した後、以下のコマンドで開発用のWebサーバーを起動します。
+After package installation is complete, start the development web server with the following command.
 ```bash
 npm run dev
 ```
 
-実行後、以下のURLにアクセスして動作を確認して下さい。
+After running, access the following URL to check the functionality.
 
 [http://localhost:3000](http://localhost:3000) 
 
@@ -51,17 +51,17 @@ npm run dev
 
 ## ChatGPT API
 
-ChatVRMでは返答文の生成にChatGPT APIを使用しています。
+ChatVRM uses the ChatGPT API for response generation.
 
-ChatGPT APIの仕様や利用規約については以下のリンクや公式サイトをご確認ください。
+For ChatGPT API specifications and terms of use, please check the following links and official site.
 
 - [https://platform.openai.com/docs/api-reference/chat](https://platform.openai.com/docs/api-reference/chat)
 - [https://openai.com/policies/api-data-usage-policies](https://openai.com/policies/api-data-usage-policies)
 
 
 ## Koeiromap API
-ChatVRMでは返答文の音声読み上げにKoemotionのKoeiromap APIを使用しています。
+ChatVRM uses Koemotion's Koeiromap API for speech synthesis of responses.
 
-Koeiromap APIの仕様や利用規約については以下のリンクや公式サイトをご確認ください。
+For Koeiromap API specifications and terms of use, please check the following links and official site.
 
 - [https://koemotion.rinna.co.jp/](https://koemotion.rinna.co.jp/)

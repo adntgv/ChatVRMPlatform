@@ -225,14 +225,14 @@ describe('MessageInputContainer', () => {
 
       // Wait for speech recognition to be set up
       await waitFor(() => {
-        expect(mockSpeechRecognition.lang).toBe('ja-JP');
+        expect(mockSpeechRecognition.lang).toBe('en-US');
       });
 
       // Simulate final recognition result
       const mockEvent = {
         results: [
           [{
-            transcript: 'こんにちは',
+            transcript: 'Hello',
           }],
         ],
       };
@@ -242,8 +242,8 @@ describe('MessageInputContainer', () => {
         mockSpeechRecognition.dispatchEvent('result', mockEvent);
       });
 
-      expect(screen.getByTestId('text-input')).toHaveValue('こんにちは');
-      expect(mockOnChatProcessStart).toHaveBeenCalledWith('こんにちは');
+      expect(screen.getByTestId('text-input')).toHaveValue('Hello');
+      expect(mockOnChatProcessStart).toHaveBeenCalledWith('Hello');
     });
 
     it('should update text on interim recognition result', async () => {
@@ -256,14 +256,14 @@ describe('MessageInputContainer', () => {
 
       // Wait for speech recognition to be set up
       await waitFor(() => {
-        expect(mockSpeechRecognition.lang).toBe('ja-JP');
+        expect(mockSpeechRecognition.lang).toBe('en-US');
       });
 
       // Simulate interim recognition result
       const mockEvent = {
         results: [
           [{
-            transcript: 'こんに',
+            transcript: 'Hell',
           }],
         ],
       };
@@ -273,7 +273,7 @@ describe('MessageInputContainer', () => {
         mockSpeechRecognition.dispatchEvent('result', mockEvent);
       });
 
-      expect(screen.getByTestId('text-input')).toHaveValue('こんに');
+      expect(screen.getByTestId('text-input')).toHaveValue('Hell');
       expect(mockOnChatProcessStart).not.toHaveBeenCalled();
     });
 

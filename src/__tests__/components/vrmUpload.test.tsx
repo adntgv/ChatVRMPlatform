@@ -47,16 +47,16 @@ describe('VrmUpload', () => {
   it('should render upload area and button', () => {
     render(<VrmUpload onVrmLoad={mockOnVrmLoad} />);
 
-    expect(screen.getByText('VRMファイルをドラッグ&ドロップ')).toBeInTheDocument();
-    expect(screen.getByText('または、クリックしてファイルを選択')).toBeInTheDocument();
-    expect(screen.getByTestId('text-button')).toHaveTextContent('VRMファイルを選択');
+    expect(screen.getByText('Drag & drop VRM file')).toBeInTheDocument();
+    expect(screen.getByText('Or click to select file')).toBeInTheDocument();
+    expect(screen.getByTestId('text-button')).toHaveTextContent('Select VRM File');
   });
 
   it('should show loading state', () => {
     render(<VrmUpload onVrmLoad={mockOnVrmLoad} isLoading={true} />);
 
-    expect(screen.getByText('VRMファイルを読み込み中...')).toBeInTheDocument();
-    expect(screen.getByTestId('text-button')).toHaveTextContent('VRM読み込み中...');
+    expect(screen.getByText('Loading VRM file...')).toBeInTheDocument();
+    expect(screen.getByTestId('text-button')).toHaveTextContent('Loading VRM...');
     expect(screen.getByTestId('text-button')).toBeDisabled();
   });
 
@@ -105,7 +105,7 @@ describe('VrmUpload', () => {
     
     await user.upload(fileInput, largeFile);
 
-    expect(screen.getByText('ファイルサイズが大きすぎます。50MB以下のファイルを選択してください。')).toBeInTheDocument();
+    expect(screen.getByText('File size too large. Please select a file under 50MB.')).toBeInTheDocument();
     expect(mockOnVrmLoad).not.toHaveBeenCalled();
   });
 
@@ -113,7 +113,7 @@ describe('VrmUpload', () => {
     render(<VrmUpload onVrmLoad={mockOnVrmLoad} />);
 
     const file = new File(['vrm content'], 'test.vrm', { type: 'application/octet-stream' });
-    const dropZone = screen.getByText('VRMファイルをドラッグ&ドロップ').closest('div');
+    const dropZone = screen.getByText('Drag & drop VRM file').closest('div');
 
     // Mock drag and drop
     const dragEvent = new Event('drop', { bubbles: true });
@@ -133,7 +133,7 @@ describe('VrmUpload', () => {
   it('should handle drag events', () => {
     render(<VrmUpload onVrmLoad={mockOnVrmLoad} />);
 
-    const dropZone = screen.getByText('VRMファイルをドラッグ&ドロップ').closest('div');
+    const dropZone = screen.getByText('Drag & drop VRM file').closest('div');
     
     // Test that drag events don't throw errors
     expect(() => {
@@ -146,7 +146,7 @@ describe('VrmUpload', () => {
     render(<VrmUpload onVrmLoad={mockOnVrmLoad} disabled={true} />);
 
     const file = new File(['vrm content'], 'test.vrm', { type: 'application/octet-stream' });
-    const dropZone = screen.getByText('VRMファイルをドラッグ&ドロップ').closest('div');
+    const dropZone = screen.getByText('Drag & drop VRM file').closest('div');
 
     const dragEvent = new Event('drop', { bubbles: true });
     Object.defineProperty(dragEvent, 'dataTransfer', {
@@ -180,9 +180,9 @@ describe('VrmUpload', () => {
   it('should show file constraints information', () => {
     render(<VrmUpload onVrmLoad={mockOnVrmLoad} />);
 
-    expect(screen.getByText('• 対応形式: .vrm')).toBeInTheDocument();
-    expect(screen.getByText('• 最大ファイルサイズ: 50MB')).toBeInTheDocument();
-    expect(screen.getByText('• VRM 1.0形式を推奨')).toBeInTheDocument();
+    expect(screen.getByText('• Supported format: .vrm')).toBeInTheDocument();
+    expect(screen.getByText('• Maximum file size: 50MB')).toBeInTheDocument();
+    expect(screen.getByText('• VRM 1.0 format recommended')).toBeInTheDocument();
   });
 
   it('should trigger file dialog when upload area is clicked', async () => {
@@ -192,7 +192,7 @@ describe('VrmUpload', () => {
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     const clickSpy = jest.spyOn(fileInput, 'click').mockImplementation(() => {});
 
-    const dropZone = screen.getByText('VRMファイルをドラッグ&ドロップ').closest('div');
+    const dropZone = screen.getByText('Drag & drop VRM file').closest('div');
     await user.click(dropZone!);
 
     expect(clickSpy).toHaveBeenCalled();
