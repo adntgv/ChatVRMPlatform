@@ -1,3 +1,4 @@
+import { config } from "@/config";
 import { TalkStyle } from "../messages/messages";
 
 export async function koeiromapV0(
@@ -20,7 +21,7 @@ export async function koeiromapV0(
   };
 
   const koeiroRes = await fetch(
-    "https://api.rinna.co.jp/models/cttse/koeiro",
+    config.api.koeiromapCttseUrl,
     param
   );
 
@@ -46,7 +47,7 @@ export async function koeiromapFreeV1(
   };
 
   const koeiroRes = await fetch(
-    "https://api.rinna.co.jp/koeiromap/v1.0/infer",
+    config.api.koeiromapUrl,
     {
       method: "POST",
       body: JSON.stringify(body),

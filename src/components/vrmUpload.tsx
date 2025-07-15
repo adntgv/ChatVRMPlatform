@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
+import { config } from '@/config';
 import { TextButton } from './textButton';
 import { vrmStorage } from '@/features/storage/vrmStorage';
 
@@ -29,10 +30,10 @@ export const VrmUpload: React.FC<VrmUploadProps> = ({
       return false;
     }
 
-    // Check file size (limit to 50MB)
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    // Check file size (limit configured in environment)
+    const maxSize = config.limits.vrmUploadMaxSizeMb * 1024 * 1024;
     if (file.size > maxSize) {
-      setError('File size too large. Please select a file under 50MB.');
+      setError(`File size too large. Please select a file under ${config.limits.vrmUploadMaxSizeMb}MB.`);
       return false;
     }
 

@@ -1,4 +1,5 @@
 import { Configuration, OpenAIApi } from "openai";
+import { config } from "@/config";
 import { Message } from "../messages/messages";
 
 export async function getChatResponse(messages: Message[], apiKey: string) {
@@ -38,7 +39,7 @@ export async function getChatResponseStream(
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
   };
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(config.api.openAiUrl, {
     headers: headers,
     method: "POST",
     body: JSON.stringify({

@@ -47,7 +47,13 @@ ChatVRM is currently a proof-of-concept demo application showcasing 3D character
   - [x] ✅ Migrate MessageInputContainer to use stores directly - **COMPLETED 2025-07-15**
   - [x] ✅ Integrate audio synthesis (handleSpeakAi) with chat store flow - **COMPLETED 2025-07-15**
   - [x] ✅ Add performance benchmarks for re-render optimization - **COMPLETED 2025-07-15**
-- [ ] Move hardcoded configuration to environment variables
+- [x] Move hardcoded configuration to environment variables - **COMPLETED 2025-07-15**
+  - ✅ Identified all hardcoded values (API URLs, rate limits, file sizes, animation params)
+  - ✅ Created centralized config module with environment variable support
+  - ✅ Added .env.example with all configurable options
+  - ✅ Updated 8 files to use configuration module
+  - ✅ Maintained backward compatibility with fallback values
+  - ✅ Updated README and CLAUDE.md with configuration documentation
 - [ ] Add TypeScript strict mode
 - [ ] Implement comprehensive error handling
 - [ ] Add proper logging system

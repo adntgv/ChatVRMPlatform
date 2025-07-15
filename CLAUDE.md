@@ -80,9 +80,32 @@ npm run export   # Export static site
 
 ### Environment Variables
 ```bash
-OPENAI_API_KEY=your_openai_key      # Required for ChatGPT
-KOEIROMAP_API_KEY=your_koeiromap_key # Required for voice synthesis
-BASE_PATH=/optional/base/path        # For custom deployment paths
+# API Keys
+OPEN_AI_KEY=your_openai_key                    # Server-side OpenAI API key fallback
+KOEIROMAP_API_KEY=your_koeiromap_key          # Server-side Koeiromap API key fallback
+
+# Base Configuration
+BASE_PATH=/optional/base/path                  # For custom deployment paths
+
+# API Endpoints (customizable for proxies or alternative services)
+NEXT_PUBLIC_OPENAI_API_URL=https://api.openai.com/v1/chat/completions
+NEXT_PUBLIC_KOEIROMAP_API_URL=https://api.rinna.co.jp/koeiromap/v1.0/infer
+NEXT_PUBLIC_KOEIROMAP_CTTSE_URL=https://api.rinna.co.jp/models/cttse/koeiro
+
+# Rate Limits & File Size Limits
+NEXT_PUBLIC_SPEECH_SYNTHESIS_RATE_LIMIT_MS=1000  # Min delay between TTS requests
+NEXT_PUBLIC_VRM_UPLOAD_MAX_SIZE_MB=50            # Max VRM file size
+
+# Animation Configuration
+NEXT_PUBLIC_SACCADE_MIN_INTERVAL=0.5             # Eye movement timing
+NEXT_PUBLIC_BLINK_CLOSE_MAX=0.12                 # Blink animation values
+NEXT_PUBLIC_BLINK_OPEN_MAX=5
+
+# Lighting Settings
+NEXT_PUBLIC_DIRECTIONAL_LIGHT_INTENSITY=0.6      # 3D scene lighting
+NEXT_PUBLIC_AMBIENT_LIGHT_INTENSITY=0.4
+
+# Additional configurations available in .env.example
 ```
 
 ### Browser Requirements

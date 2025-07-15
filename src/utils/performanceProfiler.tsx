@@ -148,11 +148,13 @@ export function withPerformanceProfiler<P extends object>(
   Component: React.ComponentType<P>,
   id: string
 ) {
-  return React.forwardRef<any, P>((props, ref) => (
+  const WrappedComponent = React.forwardRef<any, P>((props, ref) => (
     <Profiler id={id} onRender={performanceMonitor.recordRender}>
       <Component {...props} ref={ref} />
     </Profiler>
   ));
+  WrappedComponent.displayName = `withPerformanceProfiler(${Component.displayName || Component.name || 'Component'})`;
+  return WrappedComponent;
 }
 
 // Hook for manual performance tracking

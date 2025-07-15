@@ -1,4 +1,5 @@
 import React from "react";
+import { config } from "@/config";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
 import { Message } from "@/features/messages/messages";
@@ -160,7 +161,7 @@ export const Settings = ({
               <input
                 type="range"
                 min={-10}
-                max={10}
+                max={config.ui.settingsSliderMax}
                 step={0.001}
                 value={koeiroParam.speakerX}
                 className="mt-8 mb-16 input-range"
@@ -175,7 +176,7 @@ export const Settings = ({
               <input
                 type="range"
                 min={-10}
-                max={10}
+                max={config.ui.settingsSliderMax}
                 step={0.001}
                 value={koeiroParam.speakerY}
                 className="mt-8 mb-16 input-range"

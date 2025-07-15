@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { config } from "@/config";
 import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { buildUrl } from "@/utils/buildUrl";
@@ -27,11 +28,11 @@ export class Viewer {
     this._scene = scene;
 
     // light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, config.lighting.directionalLightIntensity);
     directionalLight.position.set(1.0, 1.0, 1.0).normalize();
     scene.add(directionalLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, config.lighting.ambientLightIntensity);
     scene.add(ambientLight);
 
     // animate

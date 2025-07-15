@@ -1,3 +1,4 @@
+import { config } from "@/config";
 import { wait } from "@/utils/wait";
 import { synthesizeVoiceApi } from "./synthesizeVoice";
 import { Viewer } from "../vrmViewer/viewer";
@@ -18,8 +19,8 @@ const createSpeakCharacter = () => {
   ) => {
     const fetchPromise = prevFetchPromise.then(async () => {
       const now = Date.now();
-      if (now - lastTime < 1000) {
-        await wait(1000 - (now - lastTime));
+      if (now - lastTime < config.limits.speechSynthesisRateLimitMs) {
+        await wait(config.limits.speechSynthesisRateLimitMs - (now - lastTime));
       }
 
       const buffer = await fetchAudio(screenplay.talk, koeiroApiKey).catch(
