@@ -15,7 +15,14 @@ export interface ChatActions {
   addMessage: (message: Message) => void;
   updateMessage: (index: number, content: string) => void;
   clearChat: () => void;
-  handleSendChat: (text: string, openAiKey: string, systemPrompt: string) => Promise<void>;
+  handleSendChat: (
+    text: string, 
+    openAiKey: string, 
+    systemPrompt: string,
+    koeiroParam: KoeiroParam,
+    koeiromapKey: string,
+    onSpeakAi: (screenplay: any) => void
+  ) => Promise<void>;
   getChatLog: () => Message[];
 }
 

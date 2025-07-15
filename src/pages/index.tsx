@@ -1,11 +1,6 @@
 import { useCallback, useContext, useEffect } from "react";
 import VrmViewer from "@/components/vrmViewer";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
-import {
-  textsToScreenplay,
-  Screenplay,
-} from "@/features/messages/messages";
-import { speakCharacter } from "@/features/messages/speakCharacter";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
@@ -59,20 +54,6 @@ export default function Home() {
       saveToStorage(chatLog);
     });
   }, [systemPrompt, koeiroParam, chatLog, saveToStorage]);
-
-  /**
-   * Play audio by requesting each sentence in series
-   */
-  const handleSpeakAi = useCallback(
-    async (
-      screenplay: Screenplay,
-      onStart?: () => void,
-      onEnd?: () => void
-    ) => {
-      speakCharacter(screenplay, viewer, koeiromapKey, onStart, onEnd);
-    },
-    [viewer, koeiromapKey]
-  );
 
   return (
     <div className={"font-M_PLUS_2"}>

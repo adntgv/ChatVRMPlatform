@@ -1,7 +1,10 @@
 import { MessageInput } from "@/components/messageInput";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import { useChatStore } from "@/store/chatStore";
 import { useConfigStore } from "@/store/configStore";
+import { ViewerContext } from "@/features/vrmViewer/viewerContext";
+import { speakCharacter } from "@/features/messages/speakCharacter";
+import { Screenplay } from "@/features/messages/messages";
 
 /**
  * Provides text and voice input
@@ -12,7 +15,8 @@ import { useConfigStore } from "@/store/configStore";
 export const MessageInputContainer = () => {
   // Get state and actions from stores
   const { chatProcessing, handleSendChat } = useChatStore();
-  const { openAiKey, systemPrompt } = useConfigStore();
+  const { openAiKey, systemPrompt, koeiroParam, koeiromapKey } = useConfigStore();
+  const { viewer } = useContext(ViewerContext);
   const [userMessage, setUserMessage] = useState("");
   const [speechRecognition, setSpeechRecognition] =
     useState<SpeechRecognition>();
@@ -28,10 +32,19 @@ export const MessageInputContainer = () => {
       if (event.results[0].isFinal) {
         setUserMessage(text);
         // Start response generation
-        handleSendChat(text, openAiKey, systemPrompt);
+        handleSendChat(
+          text, 
+          openAiKey, 
+          systemPrompt, 
+          koeiroParam, 
+          koeiromapKey,
+          (screenplay: Screenplay) => {
+            speakCharacter(screenplay, viewer, koeiromapKey);
+          }
+        );
       }
     },
-    [handleSendChat, openAiKey, systemPrompt]
+    [handleSendChat, openAiKey, systemPrompt, koeiroParam, koeiromapKey, viewer]
   );
 
   // End recognition if silence continues
@@ -52,8 +65,17 @@ export const MessageInputContainer = () => {
   }, [isMicRecording, speechRecognition]);
 
   const handleClickSendButton = useCallback(() => {
-    handleSendChat(userMessage, openAiKey, systemPrompt);
-  }, [handleSendChat, userMessage, openAiKey, systemPrompt]);
+    handleSendChat(
+      userMessage, 
+      openAiKey, 
+      systemPrompt, 
+      koeiroParam, 
+      koeiromapKey,
+      (screenplay: Screenplay) => {
+        speakCharacter(screenplay, viewer, koeiromapKey);
+      }
+    );
+  }, [handleSendChat, userMessage, openAiKey, systemPrompt, koeiroParam, koeiromapKey, viewer]);
 
   useEffect(() => {
     const SpeechRecognition =

@@ -4,10 +4,27 @@ import userEvent from '@testing-library/user-event';
 import { MessageInputContainer } from '@/components/messageInputContainer';
 import { useChatStore } from '@/store/chatStore';
 import { useConfigStore } from '@/store/configStore';
+import { ViewerContext } from '@/features/vrmViewer/viewerContext';
 
 // Mock the stores
 jest.mock('@/store/chatStore');
 jest.mock('@/store/configStore');
+
+// Mock viewer context
+jest.mock('@/features/vrmViewer/viewerContext', () => ({
+  ViewerContext: React.createContext({
+    viewer: {
+      model: {
+        speak: jest.fn(),
+      }
+    }
+  })
+}));
+
+// Mock speakCharacter
+jest.mock('@/features/messages/speakCharacter', () => ({
+  speakCharacter: jest.fn(),
+}));
 
 // Mock MessageInput component
 jest.mock('@/components/messageInput', () => ({
@@ -60,6 +77,12 @@ const mockSpeechRecognition = {
 (global as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
 
 describe('MessageInputContainer with Zustand', () => {
+  const mockViewer = {
+    model: {
+      speak: jest.fn(),
+    }
+  };
+
   const mockChatStore = {
     chatProcessing: false,
     handleSendChat: jest.fn(),
@@ -68,6 +91,8 @@ describe('MessageInputContainer with Zustand', () => {
   const mockConfigStore = {
     openAiKey: 'test-api-key',
     systemPrompt: 'test system prompt',
+    koeiroParam: { speakerX: 0, speakerY: 0 },
+    koeiromapKey: 'test-koeiromap-key',
   };
 
   beforeEach(() => {
@@ -76,8 +101,16 @@ describe('MessageInputContainer with Zustand', () => {
     (useConfigStore as unknown as jest.Mock).mockReturnValue(mockConfigStore);
   });
 
+  const renderWithContext = (ui: React.ReactElement) => {
+    return render(
+      <ViewerContext.Provider value={{ viewer: mockViewer as any }}>
+        {ui}
+      </ViewerContext.Provider>
+    );
+  };
+
   test('renders message input components', () => {
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     expect(screen.getByTestId('message-input')).toBeInTheDocument();
     expect(screen.getByTestId('text-input')).toBeInTheDocument();
@@ -87,7 +120,7 @@ describe('MessageInputContainer with Zustand', () => {
 
   test('handles text input and send', async () => {
     const user = userEvent.setup();
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     const textInput = screen.getByTestId('text-input');
     const sendButton = screen.getByTestId('send-button');
@@ -99,11 +132,14 @@ describe('MessageInputContainer with Zustand', () => {
     // Click send
     await user.click(sendButton);
     
-    // Verify handleSendChat was called
+    // Verify handleSendChat was called with all required parameters
     expect(mockChatStore.handleSendChat).toHaveBeenCalledWith(
       'Hello, AI!',
       'test-api-key',
-      'test system prompt'
+      'test system prompt',
+      { speakerX: 0, speakerY: 0 },
+      'test-koeiromap-key',
+      expect.any(Function)
     );
   });
 
@@ -114,7 +150,7 @@ describe('MessageInputContainer with Zustand', () => {
     };
     (useChatStore as unknown as jest.Mock).mockReturnValue(processingStore);
     
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     expect(screen.getByTestId('text-input')).toBeDisabled();
     expect(screen.getByTestId('mic-button')).toBeDisabled();
@@ -124,7 +160,7 @@ describe('MessageInputContainer with Zustand', () => {
   test('clears message when chat processing completes', async () => {
     const user = userEvent.setup();
     
-    const { rerender } = render(<MessageInputContainer />);
+    const { rerender } = renderWithContext(<MessageInputContainer />);
     
     // Type a message
     const textInput = screen.getByTestId('text-input');
@@ -137,7 +173,11 @@ describe('MessageInputContainer with Zustand', () => {
       chatProcessing: true,
     });
     
-    rerender(<MessageInputContainer />);
+    rerender(
+      <ViewerContext.Provider value={{ viewer: mockViewer as any }}>
+        <MessageInputContainer />
+      </ViewerContext.Provider>
+    );
     
     // Simulate processing complete
     (useChatStore as unknown as jest.Mock).mockReturnValue({
@@ -145,7 +185,11 @@ describe('MessageInputContainer with Zustand', () => {
       chatProcessing: false,
     });
     
-    rerender(<MessageInputContainer />);
+    rerender(
+      <ViewerContext.Provider value={{ viewer: mockViewer as any }}>
+        <MessageInputContainer />
+      </ViewerContext.Provider>
+    );
     
     // Message should be cleared when processing completes
     await waitFor(() => {
@@ -154,7 +198,7 @@ describe('MessageInputContainer with Zustand', () => {
   });
 
   test('handles speech recognition', async () => {
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     const micButton = screen.getByTestId('mic-button');
     
@@ -181,18 +225,21 @@ describe('MessageInputContainer with Zustand', () => {
       resultHandler?.(resultEvent);
     });
     
-    // Verify the text was set and sent
+    // Verify the text was set and sent with all parameters
     await waitFor(() => {
       expect(mockChatStore.handleSendChat).toHaveBeenCalledWith(
         'Hello from voice',
         'test-api-key',
-        'test system prompt'
+        'test system prompt',
+        { speakerX: 0, speakerY: 0 },
+        'test-koeiromap-key',
+        expect.any(Function)
       );
     });
   });
 
   test('handles speech recognition end', () => {
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     // Start recording
     fireEvent.click(screen.getByTestId('mic-button'));
@@ -212,7 +259,7 @@ describe('MessageInputContainer with Zustand', () => {
   });
 
   test('aborts recording when clicked while recording', () => {
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     const micButton = screen.getByTestId('mic-button');
     
@@ -234,7 +281,7 @@ describe('MessageInputContainer with Zustand', () => {
     delete (global as any).SpeechRecognition;
     delete (global as any).webkitSpeechRecognition;
     
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     // Should still render without errors
     expect(screen.getByTestId('message-input')).toBeInTheDocument();
@@ -245,7 +292,7 @@ describe('MessageInputContainer with Zustand', () => {
   });
 
   test('send button is disabled when message is empty', () => {
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     const sendButton = screen.getByTestId('send-button');
     expect(sendButton).toBeDisabled();
@@ -253,7 +300,7 @@ describe('MessageInputContainer with Zustand', () => {
 
   test('send button is enabled when message has content', async () => {
     const user = userEvent.setup();
-    render(<MessageInputContainer />);
+    renderWithContext(<MessageInputContainer />);
     
     const textInput = screen.getByTestId('text-input');
     const sendButton = screen.getByTestId('send-button');

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { Message, textsToScreenplay } from '@/features/messages/messages';
+import { Message, textsToScreenplay, Screenplay } from '@/features/messages/messages';
 import { getChatResponseStream } from '@/features/chat/openAiChat';
 import { ChatStore } from '@/types/store';
+import { KoeiroParam } from '@/features/constants/koeiroParam';
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   // Initial state
@@ -44,7 +45,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   getChatLog: () => get().chatLog,
 
   // Complex chat handling logic moved from index.tsx
-  handleSendChat: async (text: string, openAiKey: string, systemPrompt: string) => {
+  handleSendChat: async (
+    text: string, 
+    openAiKey: string, 
+    systemPrompt: string,
+    koeiroParam: KoeiroParam,
+    koeiromapKey: string,
+    onSpeakAi: (screenplay: Screenplay) => void
+  ) => {
     const { setChatProcessing, setChatLog, setAssistantMessage, chatLog } = get();
 
     if (!openAiKey) {
@@ -131,8 +139,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             const aiText = `${tag} ${sentence}`;
             aiTextLog += aiText;
 
+            // Convert to screenplay and trigger audio synthesis
+            const aiTalks = textsToScreenplay([aiText], koeiroParam);
+            
             // Update assistant message with current progress
             const currentAssistantMessage = sentences.join(" ");
+            
+            // Generate & play audio for each sentence
+            onSpeakAi(aiTalks[0]);
             setAssistantMessage(currentAssistantMessage);
           }
         }
