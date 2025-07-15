@@ -74,17 +74,6 @@ export default function Home() {
     [viewer, koeiromapKey]
   );
 
-  /**
-   * Wrapper for store's handleSendChat with audio integration
-   */
-  const handleSendChatWithAudio = useCallback(
-    async (text: string) => {
-      // Use the store's handleSendChat method
-      await handleSendChat(text, openAiKey, systemPrompt);
-    },
-    [handleSendChat, openAiKey, systemPrompt]
-  );
-
   return (
     <div className={"font-M_PLUS_2"}>
       <Meta />
@@ -95,10 +84,7 @@ export default function Home() {
         onChangeKoeiromapKey={setKoeiromapKey}
       />
       <VrmViewer />
-      <MessageInputContainer
-        isChatProcessing={chatProcessing}
-        onChatProcessStart={handleSendChatWithAudio}
-      />
+      <MessageInputContainer />
       <Menu />
       <GitHubLink />
     </div>

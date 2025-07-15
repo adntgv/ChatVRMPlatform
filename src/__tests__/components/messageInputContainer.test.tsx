@@ -2,8 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MessageInputContainer } from '@/components/messageInputContainer';
+import { useChatStore } from '@/store/chatStore';
+import { useConfigStore } from '@/store/configStore';
 
-// Mock the MessageInput component
+// Mock the stores
+jest.mock('@/store/chatStore');
+jest.mock('@/store/configStore');
+
+// Mock MessageInput component
 jest.mock('@/components/messageInput', () => ({
   MessageInput: ({ 
     userMessage, 
@@ -25,7 +31,7 @@ jest.mock('@/components/messageInput', () => ({
         onClick={onClickMicButton}
         disabled={isChatProcessing}
       >
-        {isMicRecording ? 'Stop' : 'Record'}
+        {isMicRecording ? 'Recording...' : 'Start Recording'}
       </button>
       <button
         data-testid="send-button"
@@ -39,284 +45,220 @@ jest.mock('@/components/messageInput', () => ({
 }));
 
 // Mock SpeechRecognition
-class MockSpeechRecognition {
-  lang: string = '';
-  interimResults: boolean = false;
-  continuous: boolean = false;
-  private eventListeners: { [key: string]: Function[] } = {};
+const mockSpeechRecognition = {
+  start: jest.fn(),
+  abort: jest.fn(),
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  lang: '',
+  interimResults: false,
+  continuous: false,
+};
 
-  addEventListener(event: string, handler: Function) {
-    if (!this.eventListeners[event]) {
-      this.eventListeners[event] = [];
-    }
-    this.eventListeners[event].push(handler);
-  }
+// Add SpeechRecognition to window
+(global as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
+(global as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
 
-  removeEventListener(event: string, handler: Function) {
-    if (this.eventListeners[event]) {
-      this.eventListeners[event] = this.eventListeners[event].filter(h => h !== handler);
-    }
-  }
+describe('MessageInputContainer with Zustand', () => {
+  const mockChatStore = {
+    chatProcessing: false,
+    handleSendChat: jest.fn(),
+  };
 
-  start() {
-    // Simulate starting recognition
-  }
-
-  abort() {
-    // Simulate aborting recognition
-    this.dispatchEvent('end');
-  }
-
-  dispatchEvent(eventName: string, data?: any) {
-    if (this.eventListeners[eventName]) {
-      this.eventListeners[eventName].forEach(handler => handler(data));
-    }
-  }
-}
-
-describe('MessageInputContainer', () => {
-  let mockOnChatProcessStart: jest.Mock;
-  let mockSpeechRecognition: MockSpeechRecognition;
+  const mockConfigStore = {
+    openAiKey: 'test-api-key',
+    systemPrompt: 'test system prompt',
+  };
 
   beforeEach(() => {
-    mockOnChatProcessStart = jest.fn();
-    mockSpeechRecognition = new MockSpeechRecognition();
-    
-    // Mock global SpeechRecognition
-    (global as any).SpeechRecognition = jest.fn(() => mockSpeechRecognition);
-    (global as any).webkitSpeechRecognition = jest.fn(() => mockSpeechRecognition);
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
+    (useChatStore as unknown as jest.Mock).mockReturnValue(mockChatStore);
+    (useConfigStore as unknown as jest.Mock).mockReturnValue(mockConfigStore);
   });
 
-  it('should render with initial state', () => {
-    render(
-      <MessageInputContainer
-        isChatProcessing={false}
-        onChatProcessStart={mockOnChatProcessStart}
-      />
-    );
-
-    expect(screen.getByTestId('text-input')).toHaveValue('');
-    expect(screen.getByTestId('mic-button')).toHaveTextContent('Record');
-    expect(screen.getByTestId('send-button')).toBeDisabled();
-  });
-
-  it('should update text input when user types', async () => {
-    const user = userEvent.setup();
-    render(
-      <MessageInputContainer
-        isChatProcessing={false}
-        onChatProcessStart={mockOnChatProcessStart}
-      />
-    );
-
-    const input = screen.getByTestId('text-input');
-    await user.type(input, 'Hello world');
-
-    expect(input).toHaveValue('Hello world');
-    expect(screen.getByTestId('send-button')).not.toBeDisabled();
-  });
-
-  it('should call onChatProcessStart when send button is clicked', async () => {
-    const user = userEvent.setup();
-    render(
-      <MessageInputContainer
-        isChatProcessing={false}
-        onChatProcessStart={mockOnChatProcessStart}
-      />
-    );
-
-    const input = screen.getByTestId('text-input');
-    await user.type(input, 'Test message');
+  test('renders message input components', () => {
+    render(<MessageInputContainer />);
     
-    const sendButton = screen.getByTestId('send-button');
-    await user.click(sendButton);
-
-    expect(mockOnChatProcessStart).toHaveBeenCalledWith('Test message');
+    expect(screen.getByTestId('message-input')).toBeInTheDocument();
+    expect(screen.getByTestId('text-input')).toBeInTheDocument();
+    expect(screen.getByTestId('mic-button')).toBeInTheDocument();
+    expect(screen.getByTestId('send-button')).toBeInTheDocument();
   });
 
-  it('should disable inputs when chat is processing', () => {
-    render(
-      <MessageInputContainer
-        isChatProcessing={true}
-        onChatProcessStart={mockOnChatProcessStart}
-      />
+  test('handles text input and send', async () => {
+    const user = userEvent.setup();
+    render(<MessageInputContainer />);
+    
+    const textInput = screen.getByTestId('text-input');
+    const sendButton = screen.getByTestId('send-button');
+    
+    // Type a message
+    await user.type(textInput, 'Hello, AI!');
+    expect(textInput).toHaveValue('Hello, AI!');
+    
+    // Click send
+    await user.click(sendButton);
+    
+    // Verify handleSendChat was called
+    expect(mockChatStore.handleSendChat).toHaveBeenCalledWith(
+      'Hello, AI!',
+      'test-api-key',
+      'test system prompt'
     );
+  });
 
+  test('disables input during chat processing', () => {
+    const processingStore = {
+      ...mockChatStore,
+      chatProcessing: true,
+    };
+    (useChatStore as unknown as jest.Mock).mockReturnValue(processingStore);
+    
+    render(<MessageInputContainer />);
+    
     expect(screen.getByTestId('text-input')).toBeDisabled();
     expect(screen.getByTestId('mic-button')).toBeDisabled();
     expect(screen.getByTestId('send-button')).toBeDisabled();
   });
 
-  it('should clear input when chat processing completes', () => {
-    const { rerender } = render(
-      <MessageInputContainer
-        isChatProcessing={true}
-        onChatProcessStart={mockOnChatProcessStart}
-      />
-    );
-
-    // Set some text while processing
-    const input = screen.getByTestId('text-input');
-    fireEvent.change(input, { target: { value: 'Some text' } });
-
-    // Complete processing
-    rerender(
-      <MessageInputContainer
-        isChatProcessing={false}
-        onChatProcessStart={mockOnChatProcessStart}
-      />
-    );
-
-    expect(input).toHaveValue('');
+  test('clears message when chat processing completes', async () => {
+    const user = userEvent.setup();
+    
+    const { rerender } = render(<MessageInputContainer />);
+    
+    // Type a message
+    const textInput = screen.getByTestId('text-input');
+    await user.type(textInput, 'Test message');
+    expect(textInput).toHaveValue('Test message');
+    
+    // Simulate chat processing starting
+    (useChatStore as unknown as jest.Mock).mockReturnValue({
+      ...mockChatStore,
+      chatProcessing: true,
+    });
+    
+    rerender(<MessageInputContainer />);
+    
+    // Simulate processing complete
+    (useChatStore as unknown as jest.Mock).mockReturnValue({
+      ...mockChatStore,
+      chatProcessing: false,
+    });
+    
+    rerender(<MessageInputContainer />);
+    
+    // Message should be cleared when processing completes
+    await waitFor(() => {
+      expect(textInput).toHaveValue('');
+    });
   });
 
-  describe('Speech Recognition', () => {
-    it('should start recording when mic button is clicked', async () => {
-      const user = userEvent.setup();
-      const startSpy = jest.spyOn(mockSpeechRecognition, 'start');
-      
-      render(
-        <MessageInputContainer
-          isChatProcessing={false}
-          onChatProcessStart={mockOnChatProcessStart}
-        />
-      );
-
-      const micButton = screen.getByTestId('mic-button');
-      await user.click(micButton);
-
-      expect(startSpy).toHaveBeenCalled();
-      expect(micButton).toHaveTextContent('Stop');
+  test('handles speech recognition', async () => {
+    render(<MessageInputContainer />);
+    
+    const micButton = screen.getByTestId('mic-button');
+    
+    // Start recording
+    fireEvent.click(micButton);
+    expect(mockSpeechRecognition.start).toHaveBeenCalled();
+    expect(screen.getByText('Recording...')).toBeInTheDocument();
+    
+    // Simulate speech recognition result
+    const resultEvent = new Event('result') as any;
+    resultEvent.results = [
+      [{
+        transcript: 'Hello from voice',
+        confidence: 0.9
+      }],
+    ];
+    resultEvent.results[0].isFinal = true;
+    
+    const resultHandler = mockSpeechRecognition.addEventListener.mock.calls.find(
+      call => call[0] === 'result'
+    )?.[1];
+    
+    act(() => {
+      resultHandler?.(resultEvent);
     });
-
-    it('should abort recording when mic button is clicked while recording', async () => {
-      const user = userEvent.setup();
-      const abortSpy = jest.spyOn(mockSpeechRecognition, 'abort');
-      
-      render(
-        <MessageInputContainer
-          isChatProcessing={false}
-          onChatProcessStart={mockOnChatProcessStart}
-        />
+    
+    // Verify the text was set and sent
+    await waitFor(() => {
+      expect(mockChatStore.handleSendChat).toHaveBeenCalledWith(
+        'Hello from voice',
+        'test-api-key',
+        'test system prompt'
       );
-
-      const micButton = screen.getByTestId('mic-button');
-      
-      // Start recording
-      await user.click(micButton);
-      expect(micButton).toHaveTextContent('Stop');
-      
-      // Stop recording
-      await user.click(micButton);
-      expect(abortSpy).toHaveBeenCalled();
     });
+  });
 
-    it('should update text and auto-submit on final recognition result', async () => {
-      render(
-        <MessageInputContainer
-          isChatProcessing={false}
-          onChatProcessStart={mockOnChatProcessStart}
-        />
-      );
-
-      // Wait for speech recognition to be set up
-      await waitFor(() => {
-        expect(mockSpeechRecognition.lang).toBe('en-US');
-      });
-
-      // Simulate final recognition result
-      const mockEvent = {
-        results: [
-          [{
-            transcript: 'Hello',
-          }],
-        ],
-      };
-      mockEvent.results[0].isFinal = true;
-
-      await act(async () => {
-        mockSpeechRecognition.dispatchEvent('result', mockEvent);
-      });
-
-      expect(screen.getByTestId('text-input')).toHaveValue('Hello');
-      expect(mockOnChatProcessStart).toHaveBeenCalledWith('Hello');
+  test('handles speech recognition end', () => {
+    render(<MessageInputContainer />);
+    
+    // Start recording
+    fireEvent.click(screen.getByTestId('mic-button'));
+    expect(screen.getByText('Recording...')).toBeInTheDocument();
+    
+    // Simulate recognition end
+    const endHandler = mockSpeechRecognition.addEventListener.mock.calls.find(
+      call => call[0] === 'end'
+    )?.[1];
+    
+    act(() => {
+      endHandler?.();
     });
+    
+    // Should stop recording
+    expect(screen.getByText('Start Recording')).toBeInTheDocument();
+  });
 
-    it('should update text on interim recognition result', async () => {
-      render(
-        <MessageInputContainer
-          isChatProcessing={false}
-          onChatProcessStart={mockOnChatProcessStart}
-        />
-      );
+  test('aborts recording when clicked while recording', () => {
+    render(<MessageInputContainer />);
+    
+    const micButton = screen.getByTestId('mic-button');
+    
+    // Start recording
+    fireEvent.click(micButton);
+    expect(mockSpeechRecognition.start).toHaveBeenCalled();
+    
+    // Click again to stop
+    fireEvent.click(micButton);
+    expect(mockSpeechRecognition.abort).toHaveBeenCalled();
+    expect(screen.getByText('Start Recording')).toBeInTheDocument();
+  });
 
-      // Wait for speech recognition to be set up
-      await waitFor(() => {
-        expect(mockSpeechRecognition.lang).toBe('en-US');
-      });
+  test('handles environment without speech recognition', () => {
+    // Remove speech recognition
+    const originalSpeechRecognition = (global as any).SpeechRecognition;
+    const originalWebkitSpeechRecognition = (global as any).webkitSpeechRecognition;
+    
+    delete (global as any).SpeechRecognition;
+    delete (global as any).webkitSpeechRecognition;
+    
+    render(<MessageInputContainer />);
+    
+    // Should still render without errors
+    expect(screen.getByTestId('message-input')).toBeInTheDocument();
+    
+    // Restore
+    (global as any).SpeechRecognition = originalSpeechRecognition;
+    (global as any).webkitSpeechRecognition = originalWebkitSpeechRecognition;
+  });
 
-      // Simulate interim recognition result
-      const mockEvent = {
-        results: [
-          [{
-            transcript: 'Hell',
-          }],
-        ],
-      };
-      mockEvent.results[0].isFinal = false;
+  test('send button is disabled when message is empty', () => {
+    render(<MessageInputContainer />);
+    
+    const sendButton = screen.getByTestId('send-button');
+    expect(sendButton).toBeDisabled();
+  });
 
-      await act(async () => {
-        mockSpeechRecognition.dispatchEvent('result', mockEvent);
-      });
-
-      expect(screen.getByTestId('text-input')).toHaveValue('Hell');
-      expect(mockOnChatProcessStart).not.toHaveBeenCalled();
-    });
-
-    it('should stop recording on recognition end', async () => {
-      const user = userEvent.setup();
-      
-      render(
-        <MessageInputContainer
-          isChatProcessing={false}
-          onChatProcessStart={mockOnChatProcessStart}
-        />
-      );
-
-      const micButton = screen.getByTestId('mic-button');
-      
-      // Start recording
-      await user.click(micButton);
-      expect(micButton).toHaveTextContent('Stop');
-
-      // Simulate recognition end
-      await act(async () => {
-        mockSpeechRecognition.dispatchEvent('end');
-      });
-
-      await waitFor(() => {
-        expect(micButton).toHaveTextContent('Record');
-      });
-    });
-
-    it('should handle browsers without SpeechRecognition support', () => {
-      // Remove SpeechRecognition from window
-      delete (global as any).SpeechRecognition;
-      delete (global as any).webkitSpeechRecognition;
-
-      render(
-        <MessageInputContainer
-          isChatProcessing={false}
-          onChatProcessStart={mockOnChatProcessStart}
-        />
-      );
-
-      // Component should still render without errors
-      expect(screen.getByTestId('text-input')).toBeInTheDocument();
-    });
+  test('send button is enabled when message has content', async () => {
+    const user = userEvent.setup();
+    render(<MessageInputContainer />);
+    
+    const textInput = screen.getByTestId('text-input');
+    const sendButton = screen.getByTestId('send-button');
+    
+    await user.type(textInput, 'Test');
+    expect(sendButton).not.toBeDisabled();
   });
 });

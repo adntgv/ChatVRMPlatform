@@ -1,10 +1,7 @@
 import { MessageInput } from "@/components/messageInput";
 import { useState, useEffect, useCallback } from "react";
-
-type Props = {
-  isChatProcessing: boolean;
-  onChatProcessStart: (text: string) => void;
-};
+import { useChatStore } from "@/store/chatStore";
+import { useConfigStore } from "@/store/configStore";
 
 /**
  * Provides text and voice input
@@ -12,10 +9,10 @@ type Props = {
  * Automatically sends when voice recognition is complete, disables input during response generation
  *
  */
-export const MessageInputContainer = ({
-  isChatProcessing,
-  onChatProcessStart,
-}: Props) => {
+export const MessageInputContainer = () => {
+  // Get state and actions from stores
+  const { chatProcessing, handleSendChat } = useChatStore();
+  const { openAiKey, systemPrompt } = useConfigStore();
   const [userMessage, setUserMessage] = useState("");
   const [speechRecognition, setSpeechRecognition] =
     useState<SpeechRecognition>();
@@ -31,10 +28,10 @@ export const MessageInputContainer = ({
       if (event.results[0].isFinal) {
         setUserMessage(text);
         // Start response generation
-        onChatProcessStart(text);
+        handleSendChat(text, openAiKey, systemPrompt);
       }
     },
-    [onChatProcessStart]
+    [handleSendChat, openAiKey, systemPrompt]
   );
 
   // End recognition if silence continues
@@ -55,8 +52,8 @@ export const MessageInputContainer = ({
   }, [isMicRecording, speechRecognition]);
 
   const handleClickSendButton = useCallback(() => {
-    onChatProcessStart(userMessage);
-  }, [onChatProcessStart, userMessage]);
+    handleSendChat(userMessage, openAiKey, systemPrompt);
+  }, [handleSendChat, userMessage, openAiKey, systemPrompt]);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -78,15 +75,15 @@ export const MessageInputContainer = ({
   }, [handleRecognitionResult, handleRecognitionEnd]);
 
   useEffect(() => {
-    if (!isChatProcessing) {
+    if (!chatProcessing) {
       setUserMessage("");
     }
-  }, [isChatProcessing]);
+  }, [chatProcessing]);
 
   return (
     <MessageInput
       userMessage={userMessage}
-      isChatProcessing={isChatProcessing}
+      isChatProcessing={chatProcessing}
       isMicRecording={isMicRecording}
       onChangeUserMessage={(e) => setUserMessage(e.target.value)}
       onClickMicButton={handleClickMicButton}
