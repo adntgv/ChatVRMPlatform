@@ -1,11 +1,99 @@
-Look at docs/tasks.md, think hard and collect all information that is needed for the next task/subtask, create more subtasks if needed. 
-You can use gemini-cli for discussing your ideas and collecting another point of view.
-Keep updating of done tasks in the tasks.md 
-If task is vague use planning mode and plan how to best implement that task. Add implementation plan as subtasks to tasks.md
-Always follow TDD, first write failing tests, then create functionality to pass those tests.
-First focus on "business logic" like desired behavior, required models, fields, repositories, services and etc, do the UI implementation last. It should be based on thoroughly tested business logic implementation
-For external services that are going to be used, make interfaces with mock implementations and add tasks for proper implementation somewhere suitable in roadmap in tasks.md, unblock yourself now
-do not hesitate to consult gemini if it is suitable/applicable/would add value or improve speed with delegation
+## Task Execution Protocol
 
+### 1. Initial Task Analysis
+- Read docs/tasks.md thoroughly and identify the next task
+- Create a TodoWrite list immediately for task tracking
+- Break down vague tasks into specific, actionable subtasks in tasks.md
+- Use planning mode for complex tasks requiring architectural decisions
 
-At the end of execution do some reflection and say what could have been improved in the workflow that we are following
+### 2. Architecture & Design Phase (REQUIRED for non-trivial tasks)
+**Consult Gemini CLI early and often:**
+```bash
+# Architecture review for the task
+gemini -p "@src/ @docs/tasks.md For the task [TASK_NAME], suggest the best architecture approach"
+
+# Check for existing patterns
+gemini -p "@src/ Are there existing patterns I should follow for [FEATURE]?"
+
+# Performance implications
+gemini -p "@src/ What are the performance implications of implementing [FEATURE]?"
+```
+
+### 3. TDD Implementation Flow
+1. **Design interfaces and types first** (create TypeScript interfaces)
+2. **Write comprehensive failing tests** covering:
+   - Happy path scenarios
+   - Edge cases and error conditions
+   - Integration points
+   - Performance benchmarks (for critical paths)
+3. **Implement minimal code** to make tests pass
+4. **Refactor** while keeping tests green
+5. **Run full test suite** to ensure no regressions
+
+### 4. Implementation Priority
+1. **Core business logic** (models, services, stores)
+2. **State management** (if applicable)
+3. **API/External service interfaces** (with mocks)
+4. **UI components** (last, built on tested logic)
+
+### 5. External Services Strategy
+- Create interfaces with full TypeScript types
+- Implement mock versions for testing
+- Add "proper implementation" tasks to roadmap
+- Document integration requirements
+
+### 6. Progress Tracking
+- Update TodoWrite status in real-time (mark as in_progress when starting)
+- Update tasks.md after each subtask completion
+- Commit meaningful progress (don't wait until everything is done)
+- Add discovered subtasks immediately to tasks.md
+
+### 7. Quality Checkpoints
+After each major step:
+```bash
+npm test                    # All tests passing?
+npm run lint               # No linting errors?
+npm run build             # Builds successfully?
+```
+
+### 8. Documentation Updates
+- Update relevant docs immediately after implementation
+- Document architectural decisions in code comments
+- Update CLAUDE.md if you discover new patterns/best practices
+
+### 9. Performance Validation (for 3D/real-time features)
+- Profile before and after implementation
+- Check for unnecessary re-renders
+- Monitor memory usage
+- Test with production-like data volumes
+
+### 10. Final Reflection & Continuous Improvement
+At task completion:
+1. **What worked well?** Document in CLAUDE.md
+2. **What was challenging?** Add guidance to avoid future issues
+3. **What tools/patterns emerged?** Update this execute.md file
+4. **What follow-up tasks were discovered?** Add to tasks.md roadmap
+
+### Gemini CLI Usage Examples for Common Scenarios
+
+**Before starting implementation:**
+```bash
+gemini -p "@src/ @docs/ What's the current architecture and how would [NEW_FEATURE] best fit?"
+```
+
+**When stuck or need validation:**
+```bash
+gemini -p "@src/[relevant_files] Is this the right approach for [PROBLEM]? Suggest alternatives."
+```
+
+**For code review:**
+```bash
+gemini -p "@src/[new_files] Review this implementation for best practices and potential issues"
+```
+
+**For test coverage:**
+```bash
+gemini -p "@src/[feature] @__tests__/ What test cases am I missing for complete coverage?"
+```
+
+Remember: Gemini has massive context window - use it liberally for architecture decisions and code reviews!

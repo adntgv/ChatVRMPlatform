@@ -271,3 +271,45 @@ No automated tests present. Manual testing required for:
   - No need for --yolo flag for read-only analysis
   - Gemini's context window can handle entire codebases that would overflow Claude's context
   - When checking implementations, be specific about what you're looking for to get accurate results
+
+
+## Development Best Practices & Workflow
+
+### State Management Implementation Guidelines
+When implementing state management or similar architectural changes:
+1. **Always consult Gemini CLI early** for architecture decisions using the entire codebase context
+2. **Create comprehensive TypeScript interfaces** before implementation
+3. **Follow strict TDD approach**: Write failing tests → Implement → Verify all tests pass
+4. **Maintain backward compatibility** during migrations - preserve existing functionality
+5. **Track progress meticulously** using TodoWrite tool and update tasks.md frequently
+
+### Testing Strategy
+1. **Unit tests first**: Test business logic in isolation
+2. **Integration tests**: Test how components work together
+3. **Performance benchmarks**: For critical paths (especially in 3D/real-time features)
+4. **Consider feature flags** for gradual rollouts of major changes
+
+### Migration Best Practices
+1. **Document migration steps** in tasks.md as subtasks
+2. **Create interfaces for external services** with mock implementations first
+3. **Migrate incrementally**: Core logic → State → UI components
+4. **Validate each step**: Run tests after each migration phase
+
+### Performance Considerations for 3D Applications
+1. **Minimize re-renders**: Use granular state subscriptions (Zustand selectors)
+2. **Separate concerns**: Business logic in stores, UI logic in components
+3. **Profile before optimizing**: Use React DevTools and Chrome Performance tab
+4. **Consider WebWorkers** for heavy computations that dont need DOM access
+
+### Documentation Requirements
+1. **Update relevant docs** immediately after implementation
+2. **Include "why" not just "what"** in architectural decisions
+3. **Add examples** for complex features or APIs
+4. **Keep tasks.md as single source of truth** for project progress
+
+### Collaboration with Gemini CLI
+Use Gemini for:
+- Architecture reviews: `gemini -p "@src/ Review this architecture and suggest improvements"`
+- Code quality checks: `gemini -p "@src/store/ Are there any anti-patterns in this state management?"`
+- Performance analysis: `gemini -p "@src/components/ Identify potential performance bottlenecks"`
+- Test coverage gaps: `gemini -p "@src/ @__tests__/ What critical paths lack test coverage?"`
