@@ -52,6 +52,11 @@ npm run export   # Export static site
 - **Tag Format**: `[{emotion}]text` parsed via regex
 - **Supported Emotions**: neutral, happy, angry, sad, relaxed
 - **Integration**: Emotions control both facial expressions and voice style
+- **Audio Synthesis Flow**: 
+  1. Chat response stream → Extract sentences → Convert to screenplay (textsToScreenplay)
+  2. Each sentence → Koeiromap API → Audio buffer → Character speech animation
+  3. Zustand Integration: handleSendChat accepts audio params (koeiroParam, koeiromapKey, onSpeakAi)
+  4. Rate limiting: 1 request/second enforced by speakCharacter queue
 
 ### Critical Files for System Understanding
 

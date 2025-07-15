@@ -69,10 +69,13 @@ npm run build             # Builds successfully?
 
 ### 10. Final Reflection & Continuous Improvement
 At task completion:
-1. **What worked well?** Document in CLAUDE.md
-2. **What was challenging?** Add guidance to avoid future issues
-3. **What tools/patterns emerged?** Update this execute.md file
-4. **What follow-up tasks were discovered?** Add to tasks.md roadmap
+1. **What worked well?**  
+2. **What was challenging?**  
+3. **What tools/patterns emerged?** 
+4. **What follow-up tasks were discovered?**  
+
+After answering to those questions think hard what kind of information can improve your workflow execute.md, CLAUDE.md or should go as a task to tasks.md
+Then go and update those documents only if your findings bring value to those documents
 
 ### Gemini CLI Usage Examples for Common Scenarios
 
@@ -97,3 +100,11 @@ gemini -p "@src/[feature] @__tests__/ What test cases am I missing for complete 
 ```
 
 Remember: Gemini has massive context window - use it liberally for architecture decisions and code reviews!
+
+### Additional Best Practices 
+- **Always use Gemini CLI first** for understanding complex flows
+- **Create comprehensive test helpers** early  
+- **Mock dependencies incrementally** - start with minimal mocks and expand as needed
+- **Track re-render performance** from the start using React Profiler
+- **Document architectural decisions** in real-time, not after completion
+- **Use git history exploration** (`git show`, `git log`) to understand previous implementations

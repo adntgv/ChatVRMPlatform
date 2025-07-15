@@ -55,6 +55,18 @@ ChatVRM is currently a proof-of-concept demo application showcasing 3D character
   - [ ] Test chat flow from input to audio synthesis
   - [ ] Test persistence and restoration of state
   - [ ] Test error handling in async operations
+- [ ] Complete performance benchmark tests
+  - [ ] Fix Three.js mocking for performance tests
+  - [ ] Create comprehensive performance baseline
+  - [ ] Identify and optimize slow renders (>16ms)
+- [ ] Document the audio synthesis flow
+  - [ ] Create sequence diagram for chat → screenplay → audio → animation
+  - [ ] Document Koeiromap API integration
+  - [ ] Add audio synthesis troubleshooting guide
+- [ ] Optimize re-renders based on profiler data
+  - [ ] Implement React.memo for expensive components
+  - [ ] Add useMemo for complex calculations
+  - [ ] Use Zustand selectors to minimize re-renders
 
 ### Quick Demo Improvements
 - [x] Allow users to upload custom VRM files - **COMPLETED 2025-07-14**
