@@ -17,7 +17,23 @@ export class GLTFLoader {
     }, 0);
   }
   
+  loadAsync(url) {
+    return Promise.resolve({
+      scene: {},
+      scenes: [{}],
+      animations: [],
+      cameras: [],
+      asset: {},
+      parser: {},
+      userData: {}
+    });
+  }
+  
   setPath(path) {
+    return this;
+  }
+  
+  register(plugin) {
     return this;
   }
 }

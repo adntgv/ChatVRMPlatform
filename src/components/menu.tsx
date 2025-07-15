@@ -1,6 +1,6 @@
 import { IconButton } from "./iconButton";
 import { ChatLog } from "./chatLog";
-import React, { useCallback, useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useRef, useState, Profiler } from "react";
 import { Settings } from "./settings";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { AssistantText } from "./assistantText";
@@ -10,8 +10,9 @@ import { useVrmPersistence } from "@/hooks/useVrmPersistence";
 import { useChatStore } from "@/store/chatStore";
 import { useConfigStore } from "@/store/configStore";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
+import { performanceMonitor } from "@/utils/performanceProfiler";
 
-export const Menu = () => {
+const MenuComponent = () => {
   // Get state and actions from stores
   const { chatLog, assistantMessage, clearChat, updateMessage } = useChatStore();
   const { 
@@ -222,3 +223,9 @@ export const Menu = () => {
     </>
   );
 };
+
+export const Menu = () => (
+  <Profiler id="Menu" onRender={performanceMonitor.recordRender}>
+    <MenuComponent />
+  </Profiler>
+);

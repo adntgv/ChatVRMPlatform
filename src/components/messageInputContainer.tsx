@@ -1,10 +1,11 @@
 import { MessageInput } from "@/components/messageInput";
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useEffect, useCallback, useContext, Profiler } from "react";
 import { useChatStore } from "@/store/chatStore";
 import { useConfigStore } from "@/store/configStore";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { speakCharacter } from "@/features/messages/speakCharacter";
 import { Screenplay } from "@/features/messages/messages";
+import { performanceMonitor } from "@/utils/performanceProfiler";
 
 /**
  * Provides text and voice input
@@ -12,7 +13,7 @@ import { Screenplay } from "@/features/messages/messages";
  * Automatically sends when voice recognition is complete, disables input during response generation
  *
  */
-export const MessageInputContainer = () => {
+const MessageInputContainerComponent = () => {
   // Get state and actions from stores
   const { chatProcessing, handleSendChat } = useChatStore();
   const { openAiKey, systemPrompt, koeiroParam, koeiromapKey } = useConfigStore();
@@ -113,3 +114,9 @@ export const MessageInputContainer = () => {
     />
   );
 };
+
+export const MessageInputContainer = () => (
+  <Profiler id="MessageInputContainer" onRender={performanceMonitor.recordRender}>
+    <MessageInputContainerComponent />
+  </Profiler>
+);

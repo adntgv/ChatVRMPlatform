@@ -1,5 +1,31 @@
 // Mock Three.js for testing
 module.exports = {
+  Matrix4: jest.fn(() => ({
+    identity: jest.fn(),
+    multiply: jest.fn(),
+    multiplyMatrices: jest.fn(),
+    set: jest.fn(),
+    makeRotationX: jest.fn(),
+    makeRotationY: jest.fn(),
+    makeRotationZ: jest.fn(),
+    makeScale: jest.fn(),
+    makeTranslation: jest.fn(),
+    decompose: jest.fn(),
+    compose: jest.fn(),
+    invert: jest.fn(),
+    determinant: jest.fn(),
+    getInverse: jest.fn(),
+    transpose: jest.fn(),
+    setPosition: jest.fn(),
+    scale: jest.fn(),
+    getMaxScaleOnAxis: jest.fn(),
+    makeOrthographic: jest.fn(),
+    equals: jest.fn(),
+    fromArray: jest.fn(),
+    toArray: jest.fn(),
+    clone: jest.fn(),
+    copy: jest.fn(),
+  })),
   Scene: jest.fn(),
   WebGLRenderer: jest.fn(() => ({
     setSize: jest.fn(),
@@ -13,7 +39,11 @@ module.exports = {
     lookAt: jest.fn(),
   })),
   DirectionalLight: jest.fn(() => ({
-    position: { set: jest.fn() },
+    position: { 
+      set: jest.fn().mockReturnValue({
+        normalize: jest.fn().mockReturnThis()
+      })
+    },
   })),
   AmbientLight: jest.fn(),
   Vector3: jest.fn(),
