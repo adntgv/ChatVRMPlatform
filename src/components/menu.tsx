@@ -84,27 +84,6 @@ const MenuComponent = () => {
     fileInputRef.current?.click();
   }, []);
 
-  const handleChangeVrmFile = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (!files) return;
-
-      const file = files[0];
-      if (!file) return;
-
-      const file_type = file.name.split(".").pop();
-
-      if (file_type === "vrm") {
-        const blob = new Blob([file], { type: "application/octet-stream" });
-        const url = window.URL.createObjectURL(blob);
-        viewer.loadVrm(url);
-      }
-
-      event.target.value = "";
-    },
-    [viewer]
-  );
-
   const handleVrmLoad = useCallback(async (url: string) => {
     setIsVrmLoading(true);
     try {
@@ -116,6 +95,29 @@ const MenuComponent = () => {
       setIsVrmLoading(false);
     }
   }, [viewer]);
+
+  const handleChangeVrmFile = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+
+      const file = files[0];
+      if (!file) return;
+
+      const file_type = file.name.split(".").pop();
+
+      if (file_type === "vrm") {
+        const blob = new Blob([file], { type: "application/octet-stream" });
+        const url = window.URL.createObjectURL(blob);
+        
+        // Use handleVrmLoad which has proper error handling
+        await handleVrmLoad(url);
+      }
+
+      event.target.value = "";
+    },
+    [handleVrmLoad]
+  );
 
   return (
     <>

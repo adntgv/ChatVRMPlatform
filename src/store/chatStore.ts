@@ -3,6 +3,7 @@ import { Message, textsToScreenplay, Screenplay } from '@/features/messages/mess
 import { getChatResponseStream } from '@/features/chat/openAiChat';
 import { ChatStore } from '@/types/store';
 import { KoeiroParam } from '@/features/constants/koeiroParam';
+import { AppError, ErrorType, ErrorSeverity, errorHandler, handleApiError } from '@/lib/errorHandler';
 
 export const useChatStore = create<ChatStore>((set, get) => ({
   // Initial state
@@ -85,7 +86,10 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     try {
       const stream = await getChatResponseStream(messages, openAiKey).catch(
         (e) => {
-          console.error(e);
+          handleApiError(e, 'ChatGPT', {
+            component: 'chatStore',
+            action: 'getChatResponseStream'
+          });
           return null;
         }
       );
@@ -150,9 +154,27 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             setAssistantMessage(currentAssistantMessage);
           }
         }
-      } catch (e) {
+      } catch (e: any) {
+        const error = new AppError(
+          `Stream processing error: ${e.message}`,
+          ErrorType.API,
+          ErrorSeverity.MEDIUM,
+          {
+            originalError: e,
+            context: {
+              component: 'chatStore',
+              action: 'processStream',
+              metadata: {
+                receivedMessage: receivedMessage.substring(0, 100),
+                sentencesProcessed: sentences.length
+              }
+            },
+            userMessage: '応答の処理中にエラーが発生しました。'
+          }
+        );
+        errorHandler.handle(error);
         setChatProcessing(false);
-        console.error(e);
+        setAssistantMessage('申し訳ございません。応答の処理中にエラーが発生しました。');
       } finally {
         reader.releaseLock();
       }
@@ -165,10 +187,27 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
       setChatLog(messageLogAssistant);
       setChatProcessing(false);
-    } catch (error) {
-      console.error('Error in handleSendChat:', error);
+    } catch (error: any) {
+      const appError = error instanceof AppError ? error : new AppError(
+        `Chat request failed: ${error.message}`,
+        ErrorType.API,
+        ErrorSeverity.HIGH,
+        {
+          originalError: error,
+          context: {
+            component: 'chatStore',
+            action: 'handleSendChat',
+            metadata: {
+              messageCount: messageLog.length,
+              hasApiKey: !!openAiKey
+            }
+          },
+          userMessage: 'チャットの処理中にエラーが発生しました。もう一度お試しください。'
+        }
+      );
+      errorHandler.handle(appError);
       setChatProcessing(false);
-      setAssistantMessage('Error processing chat request');
+      setAssistantMessage('申し訳ございません。チャットの処理中にエラーが発生しました。');
     }
   }
 }));

@@ -6,6 +6,7 @@ import { VRMLookAtSmootherLoaderPlugin } from "@/lib/VRMLookAtSmootherLoaderPlug
 import { LipSync } from "../lipSync/lipSync";
 import { EmoteController } from "../emoteController/emoteController";
 import { Screenplay } from "../messages/messages";
+import { AppError, ErrorType, ErrorSeverity, errorHandler } from "@/lib/errorHandler";
 
 /**
  * 3Dキャラクターを管理するクラス
@@ -24,23 +25,61 @@ export class Model {
   }
 
   public async loadVRM(url: string): Promise<void> {
-    const loader = new GLTFLoader();
-    loader.register(
-      (parser) =>
-        new VRMLoaderPlugin(parser, {
-          lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
-        })
-    );
+    try {
+      const loader = new GLTFLoader();
+      loader.register(
+        (parser) =>
+          new VRMLoaderPlugin(parser, {
+            lookAtPlugin: new VRMLookAtSmootherLoaderPlugin(parser),
+          })
+      );
 
-    const gltf = await loader.loadAsync(url);
+      const gltf = await loader.loadAsync(url);
 
-    const vrm = (this.vrm = gltf.userData.vrm);
-    vrm.scene.name = "VRMRoot";
+      if (!gltf.userData.vrm) {
+        throw new AppError(
+          'Invalid VRM file: No VRM data found',
+          ErrorType.VRM_LOADING,
+          ErrorSeverity.HIGH,
+          {
+            context: {
+              component: 'model',
+              action: 'loadVRM',
+              metadata: { url, hasUserData: !!gltf.userData }
+            },
+            userMessage: 'ファイルはVRM形式ではありません。正しいVRMファイルを選択してください。'
+          }
+        );
+      }
 
-    VRMUtils.rotateVRM0(vrm);
-    this.mixer = new THREE.AnimationMixer(vrm.scene);
+      const vrm = (this.vrm = gltf.userData.vrm);
+      vrm.scene.name = "VRMRoot";
 
-    this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
+      VRMUtils.rotateVRM0(vrm);
+      this.mixer = new THREE.AnimationMixer(vrm.scene);
+
+      this.emoteController = new EmoteController(vrm, this._lookAtTargetParent);
+    } catch (error: any) {
+      // Clean up any partial loading
+      this.unLoadVrm();
+      
+      const appError = error instanceof AppError ? error : new AppError(
+        `Failed to load VRM model: ${error.message}`,
+        ErrorType.VRM_LOADING,
+        ErrorSeverity.HIGH,
+        {
+          originalError: error,
+          context: {
+            component: 'model',
+            action: 'loadVRM',
+            metadata: { url }
+          },
+          userMessage: 'VRMモデルの読み込み中にエラーが発生しました。'
+        }
+      );
+      errorHandler.handle(appError);
+      throw appError;  // Re-throw for caller
+    }
   }
 
   public unLoadVrm() {

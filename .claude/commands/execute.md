@@ -21,14 +21,21 @@ gemini -p "@src/ What are the performance implications of implementing [FEATURE]
 
 ### 3. TDD Implementation Flow
 1. **Design interfaces and types first** (create TypeScript interfaces)
-2. **Write comprehensive failing tests** covering:
+2. **For infrastructure code**: Create the core utility/service before writing components that use it
+3. **Write comprehensive failing tests** covering:
    - Happy path scenarios
    - Edge cases and error conditions
    - Integration points
    - Performance benchmarks (for critical paths)
-3. **Implement minimal code** to make tests pass
-4. **Refactor** while keeping tests green
-5. **Run full test suite** to ensure no regressions
+4. **Implement minimal code** to make tests pass
+5. **Refactor** while keeping tests green
+6. **Run full test suite** to ensure no regressions
+
+**Infrastructure-First Pattern**: When implementing cross-cutting concerns (error handling, logging, auth), always:
+- Build the core infrastructure component first
+- Test it thoroughly in isolation
+- Then integrate it into the application
+- This prevents circular dependencies and ensures consistency
 
 ### 4. Implementation Priority
 1. **Core business logic** (models, services, stores)
@@ -108,3 +115,11 @@ Remember: Gemini has massive context window - use it liberally for architecture 
 - **Track re-render performance** from the start using React Profiler
 - **Document architectural decisions** in real-time, not after completion
 - **Use git history exploration** (`git show`, `git log`) to understand previous implementations
+
+### Search & Discovery Patterns for Complex Tasks
+When implementing system-wide changes (like error handling):
+1. **Use Task tool first** for comprehensive analysis: `Task("Search for error handling patterns", "Search for...")`
+2. **Follow up with targeted Grep searches** for specific patterns
+3. **Prioritize by impact**: API routes (high), stores (medium), UI components (low)
+4. **Use TodoWrite extensively** - complex tasks need 6+ subtasks for proper tracking
+5. **Test as you go** - don't wait until the end to run tests

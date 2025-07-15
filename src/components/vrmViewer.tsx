@@ -1,6 +1,7 @@
 import { useContext, useCallback } from "react";
 import { ViewerContext } from "../features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
+import { errorHandler } from "@/lib/errorHandler";
 
 export default function VrmViewer() {
   const { viewer } = useContext(ViewerContext);
@@ -9,14 +10,19 @@ export default function VrmViewer() {
     (canvas: HTMLCanvasElement) => {
       if (canvas) {
         viewer.setup(canvas);
-        viewer.loadVrm(buildUrl("/AvatarSample_B.vrm"));
+        
+        // Load default VRM with error handling
+        viewer.loadVrm(buildUrl("/AvatarSample_B.vrm")).catch((error) => {
+          // Error is already handled by errorHandler in loadVrm
+          console.error("Failed to load default VRM:", error);
+        });
 
         // Drag and DropでVRMを差し替え
         canvas.addEventListener("dragover", function (event) {
           event.preventDefault();
         });
 
-        canvas.addEventListener("drop", function (event) {
+        canvas.addEventListener("drop", async function (event) {
           event.preventDefault();
 
           const files = event.dataTransfer?.files;
@@ -33,7 +39,15 @@ export default function VrmViewer() {
           if (file_type === "vrm") {
             const blob = new Blob([file], { type: "application/octet-stream" });
             const url = window.URL.createObjectURL(blob);
-            viewer.loadVrm(url);
+            
+            try {
+              await viewer.loadVrm(url);
+            } catch (error) {
+              // Error is already handled by errorHandler in loadVrm
+              console.error("Failed to load dropped VRM:", error);
+              // Clean up the blob URL
+              window.URL.revokeObjectURL(url);
+            }
           }
         });
       }

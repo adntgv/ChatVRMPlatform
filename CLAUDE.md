@@ -78,6 +78,43 @@ npm run export   # Export static site
    - `/src/features/koeiromap/koeiromap.ts`: Voice synthesis API client
    - `/src/features/lipSync/lipSync.ts`: Audio analysis for mouth animation
 
+5. **Error Handling System**
+   - `/src/lib/errorHandler.ts`: Centralized error handling utility
+   - `/src/components/errorBoundary.tsx`: React error boundary component
+   - `/src/pages/_app.tsx`: Global error boundary integration
+
+#### Error Handling Architecture
+- **Centralized Error Management**: All errors flow through the `errorHandler` singleton
+- **Typed Error System**: `ErrorType` enum categorizes errors (API, VRM_LOADING, AUDIO, etc.)
+- **Severity Levels**: `ErrorSeverity` enum (LOW, MEDIUM, HIGH, CRITICAL) controls response
+- **Error Context**: Metadata includes component, action, and debugging information
+- **User-Facing Messages**: Localized error messages for better user experience
+- **React Error Boundary**: Catches component errors and provides fallback UI
+
+**Using the Error System:**
+```typescript
+import { AppError, ErrorType, ErrorSeverity, errorHandler } from '@/lib/errorHandler';
+
+// Create a typed error
+const error = new AppError(
+  'API request failed',
+  ErrorType.API,
+  ErrorSeverity.MEDIUM,
+  {
+    context: { component: 'ChatStore', action: 'sendMessage' },
+    userMessage: 'チャットの送信に失敗しました。'
+  }
+);
+
+// Handle the error
+errorHandler.handle(error);
+
+// Utility functions for common errors
+handleApiError(error, 'OpenAI', { component: 'chat' });
+handleNetworkError(error, { component: 'tts' });
+handleValidationError('Invalid input', 'email');
+```
+
 ### Environment Variables
 ```bash
 # API Keys

@@ -4,6 +4,7 @@ import { Model } from "./model";
 import { loadVRMAnimation } from "@/lib/VRMAnimation/loadVRMAnimation";
 import { buildUrl } from "@/utils/buildUrl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { AppError, ErrorType, ErrorSeverity, errorHandler } from "@/lib/errorHandler";
 
 /**
  * three.jsを使った3Dビューワー
@@ -40,15 +41,32 @@ export class Viewer {
     this._clock.start();
   }
 
-  public loadVrm(url: string) {
-    if (this.model?.vrm) {
-      this.unloadVRM();
-    }
+  public async loadVrm(url: string): Promise<void> {
+    try {
+      if (this.model?.vrm) {
+        this.unloadVRM();
+      }
 
-    // gltf and vrm
-    this.model = new Model(this._camera || new THREE.Object3D());
-    this.model.loadVRM(url).then(async () => {
-      if (!this.model?.vrm) return;
+      // gltf and vrm
+      this.model = new Model(this._camera || new THREE.Object3D());
+      
+      await this.model.loadVRM(url);
+      
+      if (!this.model?.vrm) {
+        throw new AppError(
+          'VRM model not properly loaded',
+          ErrorType.VRM_LOADING,
+          ErrorSeverity.HIGH,
+          {
+            context: {
+              component: 'viewer',
+              action: 'loadVrm',
+              metadata: { url }
+            },
+            userMessage: 'VRMモデルの読み込みに失敗しました。'
+          }
+        );
+      }
 
       // Disable frustum culling
       this.model.vrm.scene.traverse((obj) => {
@@ -57,14 +75,51 @@ export class Viewer {
 
       this._scene.add(this.model.vrm.scene);
 
-      const vrma = await loadVRMAnimation(buildUrl("/idle_loop.vrma"));
-      if (vrma) this.model.loadAnimation(vrma);
+      try {
+        const vrma = await loadVRMAnimation(buildUrl("/idle_loop.vrma"));
+        if (vrma) {
+          this.model.loadAnimation(vrma);
+        }
+      } catch (animError: any) {
+        // Animation loading is non-critical, log but continue
+        const error = new AppError(
+          `Failed to load idle animation: ${animError.message}`,
+          ErrorType.VRM_LOADING,
+          ErrorSeverity.LOW,
+          {
+            originalError: animError,
+            context: {
+              component: 'viewer',
+              action: 'loadIdleAnimation'
+            },
+            isUserFacing: false  // Don't interrupt user
+          }
+        );
+        errorHandler.handle(error);
+      }
 
       // HACK: アニメーションの原点がずれているので再生後にカメラ位置を調整する
       requestAnimationFrame(() => {
         this.resetCamera();
       });
-    });
+    } catch (error: any) {
+      const appError = error instanceof AppError ? error : new AppError(
+        `Failed to load VRM: ${error.message}`,
+        ErrorType.VRM_LOADING,
+        ErrorSeverity.HIGH,
+        {
+          originalError: error,
+          context: {
+            component: 'viewer',
+            action: 'loadVrm',
+            metadata: { url }
+          },
+          userMessage: 'VRMファイルの読み込みに失敗しました。ファイルが正しいVRM形式であることを確認してください。'
+        }
+      );
+      errorHandler.handle(appError);
+      throw appError;  // Re-throw so caller can handle
+    }
   }
 
   public unloadVRM(): void {
