@@ -8,28 +8,40 @@ import {
   handleApiError,
   handleValidationError
 } from '@/lib/errorHandler';
+import { logger } from '@/lib/logger';
+
+// Mock the logger to avoid console output in tests
+jest.mock('@/lib/logger', () => ({
+  logger: {
+    warn: jest.fn(),
+    error: jest.fn(),
+    fatal: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+  },
+  LogLevel: {
+    WARN: 2,
+    ERROR: 3,
+    FATAL: 4,
+  },
+}));
 
 describe('ErrorHandler', () => {
-  let consoleErrorSpy: jest.SpyInstance;
-  let consoleGroupSpy: jest.SpyInstance;
-  let consoleGroupEndSpy: jest.SpyInstance;
   let errorHandler: any;
+  let mockLogger: any;
   
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-    consoleGroupSpy = jest.spyOn(console, 'group').mockImplementation();
-    consoleGroupEndSpy = jest.spyOn(console, 'groupEnd').mockImplementation();
-    // Set NODE_ENV to development for detailed logging
-    process.env.NODE_ENV = 'development';
+    // Clear mock calls before each test
+    jest.clearAllMocks();
+    
+    // Get the mocked logger
+    mockLogger = logger as any;
     
     // Create a new instance for each test
     errorHandler = new (ErrorHandlerImpl as any)();
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
-    consoleGroupSpy.mockRestore();
-    consoleGroupEndSpy.mockRestore();
     jest.clearAllMocks();
     errorHandler.cleanup();
   });
@@ -71,8 +83,11 @@ describe('ErrorHandler', () => {
       const error = new Error('Network request failed');
       errorHandler.handle(error);
       
-      expect(consoleGroupSpy).toHaveBeenCalledWith(
-        expect.stringContaining(ErrorType.NETWORK)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('NETWORK Error'),
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Error)
       );
     });
 
@@ -80,8 +95,11 @@ describe('ErrorHandler', () => {
       const error = new Error('OpenAI API error');
       errorHandler.handle(error);
       
-      expect(consoleGroupSpy).toHaveBeenCalledWith(
-        expect.stringContaining(ErrorType.API)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('API Error'),
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Error)
       );
     });
 
@@ -89,8 +107,10 @@ describe('ErrorHandler', () => {
       const error = new Error('Invalid input provided');
       errorHandler.handle(error);
       
-      expect(consoleGroupSpy).toHaveBeenCalledWith(
-        expect.stringContaining(ErrorType.VALIDATION)
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('VALIDATION Error'),
+        expect.any(Object),
+        expect.any(Object)
       );
     });
 
@@ -98,8 +118,11 @@ describe('ErrorHandler', () => {
       const error = new Error('Failed to load VRM model');
       errorHandler.handle(error);
       
-      expect(consoleGroupSpy).toHaveBeenCalledWith(
-        expect.stringContaining(ErrorType.VRM_LOADING)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('VRM_LOADING Error'),
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Error)
       );
     });
 
@@ -107,8 +130,11 @@ describe('ErrorHandler', () => {
       const error = new Error('Audio synthesis failed');
       errorHandler.handle(error);
       
-      expect(consoleGroupSpy).toHaveBeenCalledWith(
-        expect.stringContaining(ErrorType.AUDIO)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('AUDIO Error'),
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Error)
       );
     });
 
@@ -116,8 +142,11 @@ describe('ErrorHandler', () => {
       const error = new Error('Microphone permission denied');
       errorHandler.handle(error);
       
-      expect(consoleGroupSpy).toHaveBeenCalledWith(
-        expect.stringContaining(ErrorType.PERMISSION)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('PERMISSION Error'),
+        expect.any(Object),
+        expect.any(Object),
+        expect.any(Error)
       );
     });
   });

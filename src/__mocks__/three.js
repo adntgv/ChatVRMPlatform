@@ -26,7 +26,12 @@ module.exports = {
     clone: jest.fn(),
     copy: jest.fn(),
   })),
-  Scene: jest.fn(),
+  Scene: jest.fn(() => ({
+    add: jest.fn(),
+    remove: jest.fn(),
+    traverse: jest.fn(),
+    children: [],
+  })),
   WebGLRenderer: jest.fn(() => ({
     setSize: jest.fn(),
     setPixelRatio: jest.fn(),
@@ -50,6 +55,8 @@ module.exports = {
   Clock: jest.fn(() => ({
     getDelta: jest.fn(() => 0.016),
     getElapsedTime: jest.fn(() => 1),
+    start: jest.fn(),
+    stop: jest.fn(),
   })),
   AnimationMixer: jest.fn(() => ({
     update: jest.fn(),

@@ -27,3 +27,27 @@ global.IntersectionObserver = class IntersectionObserver {
   observe() {}
   unobserve() {}
 };
+
+// Mock ReadableStream for streaming tests
+global.ReadableStream = class ReadableStream {
+  constructor(underlyingSource) {
+    this.underlyingSource = underlyingSource;
+    this.controller = {
+      enqueue: jest.fn(),
+      close: jest.fn(),
+      error: jest.fn(),
+    };
+    
+    // Start the stream
+    if (underlyingSource && underlyingSource.start) {
+      underlyingSource.start(this.controller);
+    }
+  }
+  
+  getReader() {
+    return {
+      read: jest.fn().mockResolvedValue({ done: true, value: undefined }),
+      releaseLock: jest.fn(),
+    };
+  }
+};

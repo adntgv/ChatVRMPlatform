@@ -1,11 +1,17 @@
 import { Configuration, OpenAIApi } from "openai";
 import { config } from "@/config";
 import { Message } from "../messages/messages";
+import { logger } from "@/lib/logger";
 
 export async function getChatResponse(messages: Message[], apiKey: string) {
+  const context = { component: 'OpenAIChat', action: 'getChatResponse' };
+  
   if (!apiKey) {
+    logger.error("Invalid API Key provided", context);
     throw new Error("Invalid API Key");
   }
+
+  logger.info(`Chat request with ${messages.length} messages`, context);
 
   const configuration = new Configuration({
     apiKey: apiKey,
@@ -16,29 +22,50 @@ export async function getChatResponse(messages: Message[], apiKey: string) {
 
   const openai = new OpenAIApi(configuration);
 
-  const { data } = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages: messages,
-  });
+  try {
+    const startTime = performance.now();
+    const { data } = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: messages,
+    });
 
-  const [aiRes] = data.choices;
-  const message = aiRes.message?.content || "エラーが発生しました";
+    const duration = performance.now() - startTime;
+    const [aiRes] = data.choices;
+    const message = aiRes.message?.content || "エラーが発生しました";
+    
+    logger.info(`Chat response received (${duration.toFixed(2)}ms)`, context, {
+      messageLength: message.length,
+      duration
+    });
 
-  return { message: message };
+    return { message: message };
+  } catch (error) {
+    logger.error("Chat response failed", context, undefined, error as Error);
+    throw error;
+  }
 }
 
 export async function getChatResponseStream(
   messages: Message[],
   apiKey: string
 ) {
+  const context = { component: 'OpenAIChat', action: 'getChatResponseStream' };
+  
   if (!apiKey) {
+    logger.error("Invalid API Key provided for streaming", context);
     throw new Error("Invalid API Key");
   }
+
+  logger.info(`Streaming chat request with ${messages.length} messages`, context);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
   };
+  
+  const startTime = performance.now();
+  logger.logApiRequest("POST", config.api.openAiUrl, context);
+  
   const res = await fetch(config.api.openAiUrl, {
     headers: headers,
     method: "POST",
@@ -50,8 +77,12 @@ export async function getChatResponseStream(
     }),
   });
 
+  const requestDuration = performance.now() - startTime;
+  logger.logApiResponse("POST", config.api.openAiUrl, res.status, requestDuration, context);
+
   const reader = res.body?.getReader();
   if (res.status !== 200 || !reader) {
+    logger.error(`Streaming request failed with status ${res.status}`, context);
     throw new Error("Something went wrong");
   }
 
@@ -75,10 +106,12 @@ export async function getChatResponseStream(
           }
         }
       } catch (error) {
+        logger.error("Streaming response processing failed", context, undefined, error as Error);
         controller.error(error);
       } finally {
         reader.releaseLock();
         controller.close();
+        logger.debug("Streaming response completed", context);
       }
     },
   });

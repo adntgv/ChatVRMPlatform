@@ -2,6 +2,8 @@
  * Centralized error handling system for ChatVRM Platform
  */
 
+import { logger, LogLevel } from './logger';
+
 export enum ErrorType {
   NETWORK = 'NETWORK',
   API = 'API',
@@ -206,28 +208,51 @@ export class ErrorHandlerImpl implements ErrorHandler {
   }
 
   private logError(error: AppError): void {
+    const logLevel = this.mapSeverityToLogLevel(error.severity);
     const logData = {
-      message: error.message,
       type: error.type,
       severity: error.severity,
       timestamp: error.timestamp,
-      context: error.context,
       stack: error.stack,
-      userMessage: error.userMessage
+      userMessage: error.userMessage,
+      isUserFacing: error.isUserFacing
     };
 
-    if (this.isDevelopment) {
-      console.group(`🚨 ${error.severity} Error: ${error.type}`);
-      console.error('Message:', error.message);
-      console.error('User Message:', error.userMessage);
-      console.error('Context:', error.context);
-      console.error('Stack:', error.stack);
-      if (error.originalError) {
-        console.error('Original Error:', error.originalError);
-      }
-      console.groupEnd();
-    } else {
-      console.error('Error:', logData);
+    // Use structured logging with appropriate context
+    const logContext = {
+      component: error.context?.component || 'ErrorHandler',
+      action: error.context?.action || 'handle',
+      userId: error.context?.userId,
+      metadata: error.context?.metadata
+    };
+
+    switch (logLevel) {
+      case LogLevel.WARN:
+        logger.warn(`${error.type} Error: ${error.message}`, logContext, logData);
+        break;
+      case LogLevel.ERROR:
+        logger.error(`${error.type} Error: ${error.message}`, logContext, logData, error.originalError || error);
+        break;
+      case LogLevel.FATAL:
+        logger.fatal(`${error.type} Error: ${error.message}`, logContext, logData, error.originalError || error);
+        break;
+      default:
+        logger.error(`${error.type} Error: ${error.message}`, logContext, logData, error.originalError || error);
+    }
+  }
+
+  private mapSeverityToLogLevel(severity: ErrorSeverity): LogLevel {
+    switch (severity) {
+      case ErrorSeverity.LOW:
+        return LogLevel.WARN;
+      case ErrorSeverity.MEDIUM:
+        return LogLevel.ERROR;
+      case ErrorSeverity.HIGH:
+        return LogLevel.ERROR;
+      case ErrorSeverity.CRITICAL:
+        return LogLevel.FATAL;
+      default:
+        return LogLevel.ERROR;
     }
   }
 
