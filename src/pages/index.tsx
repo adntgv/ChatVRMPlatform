@@ -60,24 +60,6 @@ export default function Home() {
     });
   }, [systemPrompt, koeiroParam, chatLog, saveToStorage]);
 
-  const { updateMessage, clearChat } = useChatStore();
-  const { resetToDefaults } = useConfigStore();
-
-  const handleChangeChatLog = useCallback(
-    (targetIndex: number, text: string) => {
-      updateMessage(targetIndex, text);
-    },
-    [updateMessage]
-  );
-
-  const handleResetChatLog = useCallback(() => {
-    clearChat();
-  }, [clearChat]);
-
-  const handleResetSystemPrompt = useCallback(() => {
-    resetToDefaults();
-  }, [resetToDefaults]);
-
   /**
    * Play audio by requesting each sentence in series
    */
@@ -117,21 +99,7 @@ export default function Home() {
         isChatProcessing={chatProcessing}
         onChatProcessStart={handleSendChatWithAudio}
       />
-      <Menu
-        openAiKey={openAiKey}
-        systemPrompt={systemPrompt}
-        chatLog={chatLog}
-        koeiroParam={koeiroParam}
-        assistantMessage={assistantMessage}
-        koeiromapKey={koeiromapKey}
-        onChangeAiKey={setOpenAiKey}
-        onChangeSystemPrompt={setSystemPrompt}
-        onChangeChatLog={handleChangeChatLog}
-        onChangeKoeiromapParam={setKoeiroParam}
-        handleClickResetChatLog={handleResetChatLog}
-        handleClickResetSystemPrompt={handleResetSystemPrompt}
-        onChangeKoeiromapKey={setKoeiromapKey}
-      />
+      <Menu />
       <GitHubLink />
     </div>
   );

@@ -1,6 +1,4 @@
 import { IconButton } from "./iconButton";
-import { Message } from "@/features/messages/messages";
-import { KoeiroParam } from "@/features/constants/koeiroParam";
 import { ChatLog } from "./chatLog";
 import React, { useCallback, useContext, useRef, useState } from "react";
 import { Settings } from "./settings";
@@ -9,37 +7,24 @@ import { AssistantText } from "./assistantText";
 import { VrmUpload } from "./vrmUpload";
 import { VrmManager } from "./vrmManager";
 import { useVrmPersistence } from "@/hooks/useVrmPersistence";
+import { useChatStore } from "@/store/chatStore";
+import { useConfigStore } from "@/store/configStore";
+import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 
-type Props = {
-  openAiKey: string;
-  systemPrompt: string;
-  chatLog: Message[];
-  koeiroParam: KoeiroParam;
-  assistantMessage: string;
-  koeiromapKey: string;
-  onChangeSystemPrompt: (systemPrompt: string) => void;
-  onChangeAiKey: (key: string) => void;
-  onChangeChatLog: (index: number, text: string) => void;
-  onChangeKoeiromapParam: (param: KoeiroParam) => void;
-  handleClickResetChatLog: () => void;
-  handleClickResetSystemPrompt: () => void;
-  onChangeKoeiromapKey: (key: string) => void;
-};
-export const Menu = ({
-  openAiKey,
-  systemPrompt,
-  chatLog,
-  koeiroParam,
-  assistantMessage,
-  koeiromapKey,
-  onChangeSystemPrompt,
-  onChangeAiKey,
-  onChangeChatLog,
-  onChangeKoeiromapParam,
-  handleClickResetChatLog,
-  handleClickResetSystemPrompt,
-  onChangeKoeiromapKey,
-}: Props) => {
+export const Menu = () => {
+  // Get state and actions from stores
+  const { chatLog, assistantMessage, clearChat, updateMessage } = useChatStore();
+  const { 
+    openAiKey, 
+    systemPrompt, 
+    koeiroParam, 
+    koeiromapKey,
+    setOpenAiKey,
+    setSystemPrompt,
+    setKoeiroParam,
+    setKoeiromapKey,
+    resetToDefaults
+  } = useConfigStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showChatLog, setShowChatLog] = useState(false);
   const [showVrmUpload, setShowVrmUpload] = useState(false);
@@ -65,33 +50,33 @@ export const Menu = ({
 
   const handleChangeSystemPrompt = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onChangeSystemPrompt(event.target.value);
+      setSystemPrompt(event.target.value);
     },
-    [onChangeSystemPrompt]
+    [setSystemPrompt]
   );
 
   const handleAiKeyChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChangeAiKey(event.target.value);
+      setOpenAiKey(event.target.value);
     },
-    [onChangeAiKey]
+    [setOpenAiKey]
   );
 
   const handleChangeKoeiromapKey = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onChangeKoeiromapKey(event.target.value);
+      setKoeiromapKey(event.target.value);
     },
-    [onChangeKoeiromapKey]
+    [setKoeiromapKey]
   );
 
   const handleChangeKoeiroParam = useCallback(
     (x: number, y: number) => {
-      onChangeKoeiromapParam({
+      setKoeiroParam({
         speakerX: x,
         speakerY: y,
       });
     },
-    [onChangeKoeiromapParam]
+    [setKoeiroParam]
   );
 
   const handleClickOpenVrmFile = useCallback(() => {
@@ -216,11 +201,11 @@ export const Menu = ({
           onClickClose={() => setShowSettings(false)}
           onChangeAiKey={handleAiKeyChange}
           onChangeSystemPrompt={handleChangeSystemPrompt}
-          onChangeChatLog={onChangeChatLog}
+          onChangeChatLog={(index: number, text: string) => updateMessage(index, text)}
           onChangeKoeiroParam={handleChangeKoeiroParam}
           onClickOpenVrmFile={handleClickOpenVrmFile}
-          onClickResetChatLog={handleClickResetChatLog}
-          onClickResetSystemPrompt={handleClickResetSystemPrompt}
+          onClickResetChatLog={clearChat}
+          onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
           onChangeKoeiromapKey={handleChangeKoeiromapKey}
         />
       )}

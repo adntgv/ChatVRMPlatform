@@ -11,6 +11,11 @@ const customJestConfig = {
   moduleNameMapper: {
     // Handle module aliases (this will be automatically configured for you soon)
     '^@/(.*)$': '<rootDir>/src/$1',
+    // Mock Three.js and its modules
+    '^three$': '<rootDir>/src/__mocks__/three.js',
+    '^three/(.*)$': '<rootDir>/src/__mocks__/three/$1.js',
+    // Mock @pixiv/three-vrm
+    '^@pixiv/three-vrm$': '<rootDir>/src/__mocks__/@pixiv/three-vrm.js',
   },
   moduleDirectories: ['node_modules', '<rootDir>/'],
   testEnvironment: 'jest-environment-jsdom',

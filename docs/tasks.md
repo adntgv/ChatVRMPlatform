@@ -43,7 +43,7 @@ ChatVRM is currently a proof-of-concept demo application showcasing 3D character
   - [x] ✅ All tests passing (67/67 tests pass)
   - [x] ✅ Integration tested and working
 - [ ] Complete Zustand migration for remaining components
-  - [ ] Migrate Menu component to use stores directly
+  - [x] ✅ Migrate Menu component to use stores directly - **COMPLETED 2025-07-15**
   - [ ] Migrate MessageInputContainer to use stores directly
   - [ ] Integrate audio synthesis (handleSpeakAi) with chat store flow
   - [ ] Add performance benchmarks for re-render optimization
