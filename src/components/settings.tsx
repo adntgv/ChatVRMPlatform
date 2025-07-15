@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { config } from "@/config";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
@@ -28,7 +28,7 @@ type Props = {
   onClickResetSystemPrompt: () => void;
   onChangeKoeiromapKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
-export const Settings = ({
+export const Settings = memo(({
   openAiKey,
   chatLog,
   systemPrompt,
@@ -44,6 +44,58 @@ export const Settings = ({
   onClickResetSystemPrompt,
   onChangeKoeiromapKey,
 }: Props) => {
+  // Memoize preset click handlers to prevent recreation
+  const handlePresetA = useCallback(() => {
+    onChangeKoeiroParam(PRESET_A.speakerX, PRESET_A.speakerY);
+  }, [onChangeKoeiroParam]);
+  
+  const handlePresetB = useCallback(() => {
+    onChangeKoeiroParam(PRESET_B.speakerX, PRESET_B.speakerY);
+  }, [onChangeKoeiroParam]);
+  
+  const handlePresetC = useCallback(() => {
+    onChangeKoeiroParam(PRESET_C.speakerX, PRESET_C.speakerY);
+  }, [onChangeKoeiroParam]);
+  
+  const handlePresetD = useCallback(() => {
+    onChangeKoeiroParam(PRESET_D.speakerX, PRESET_D.speakerY);
+  }, [onChangeKoeiroParam]);
+
+  // Memoize range change handlers
+  const handleSpeakerXChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChangeKoeiroParam(Number(e.target.value), koeiroParam.speakerY);
+  }, [onChangeKoeiroParam, koeiroParam.speakerY]);
+  
+  const handleSpeakerYChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChangeKoeiroParam(koeiroParam.speakerX, Number(e.target.value));
+  }, [onChangeKoeiroParam, koeiroParam.speakerX]);
+
+  // Memoize chat log items to prevent recreation
+  const chatLogItems = useMemo(() => {
+    return chatLog.map((value, index) => {
+      const handleChatLogChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        onChangeChatLog(index, event.target.value);
+      };
+
+      return (
+        <div
+          key={index}
+          className="my-8 grid grid-flow-col  grid-cols-[min-content_1fr] gap-x-fixed"
+        >
+          <div className="w-[64px] py-8">
+            {value.role === "assistant" ? "Character" : "You"}
+          </div>
+          <input
+            key={index}
+            className="bg-surface1 hover:bg-surface1-hover rounded-8 w-full px-16 py-8"
+            type="text"
+            value={value.content}
+            onChange={handleChatLogChange}
+          />
+        </div>
+      );
+    });
+  }, [chatLog, onChangeChatLog]);
   return (
     <div className="absolute z-40 w-full h-full bg-white/80 backdrop-blur ">
       <div className="absolute m-24">
@@ -127,32 +179,16 @@ export const Settings = ({
 
             <div className="mt-16 font-bold">Presets</div>
             <div className="my-8 grid grid-cols-2 gap-[8px]">
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_A.speakerX, PRESET_A.speakerY)
-                }
-              >
+              <TextButton onClick={handlePresetA}>
                 Cute
               </TextButton>
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_B.speakerX, PRESET_B.speakerY)
-                }
-              >
+              <TextButton onClick={handlePresetB}>
                 Energetic
               </TextButton>
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_C.speakerX, PRESET_C.speakerY)
-                }
-              >
+              <TextButton onClick={handlePresetC}>
                 Cool
               </TextButton>
-              <TextButton
-                onClick={() =>
-                  onChangeKoeiroParam(PRESET_D.speakerX, PRESET_D.speakerY)
-                }
-              >
+              <TextButton onClick={handlePresetD}>
                 Deep
               </TextButton>
             </div>
@@ -165,13 +201,8 @@ export const Settings = ({
                 step={0.001}
                 value={koeiroParam.speakerX}
                 className="mt-8 mb-16 input-range"
-                onChange={(e) => {
-                  onChangeKoeiroParam(
-                    Number(e.target.value),
-                    koeiroParam.speakerY
-                  );
-                }}
-              ></input>
+                onChange={handleSpeakerXChange}
+              />
               <div className="select-none">y : {koeiroParam.speakerY}</div>
               <input
                 type="range"
@@ -180,13 +211,8 @@ export const Settings = ({
                 step={0.001}
                 value={koeiroParam.speakerY}
                 className="mt-8 mb-16 input-range"
-                onChange={(e) => {
-                  onChangeKoeiroParam(
-                    koeiroParam.speakerX,
-                    Number(e.target.value)
-                  );
-                }}
-              ></input>
+                onChange={handleSpeakerYChange}
+              />
             </div>
           </div>
           {chatLog.length > 0 && (
@@ -198,27 +224,7 @@ export const Settings = ({
                 </TextButton>
               </div>
               <div className="my-8">
-                {chatLog.map((value, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="my-8 grid grid-flow-col  grid-cols-[min-content_1fr] gap-x-fixed"
-                    >
-                      <div className="w-[64px] py-8">
-                        {value.role === "assistant" ? "Character" : "You"}
-                      </div>
-                      <input
-                        key={index}
-                        className="bg-surface1 hover:bg-surface1-hover rounded-8 w-full px-16 py-8"
-                        type="text"
-                        value={value.content}
-                        onChange={(event) => {
-                          onChangeChatLog(index, event.target.value);
-                        }}
-                      ></input>
-                    </div>
-                  );
-                })}
+                {chatLogItems}
               </div>
             </div>
           )}
@@ -226,4 +232,6 @@ export const Settings = ({
       </div>
     </div>
   );
-};
+});
+
+Settings.displayName = 'Settings';

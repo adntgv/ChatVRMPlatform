@@ -63,6 +63,22 @@ npm run lint               # No linting errors?
 npm run build             # Builds successfully?
 ```
 
+#### Test Failure Resolution Workflow:
+1. **Analyze the failure**: Read error messages carefully, identify root cause
+2. **Common patterns**:
+   - Missing mocks: Add to jest.setup.js or test file
+   - Type errors: Check interfaces and update accordingly
+   - DOM API missing: Mock in test environment (scrollIntoView, ResizeObserver, etc.)
+   - Async timing: Use proper async/await patterns in tests
+3. **Fix incrementally**: Don't try to fix all failures at once
+4. **Re-run tests**: Verify fix works before moving to next failure
+
+#### Build Error Resolution:
+1. **TypeScript errors**: Usually interface mismatches or missing properties
+2. **Module resolution**: Check imports and exports
+3. **Type compatibility**: Ensure event handlers match expected signatures
+4. **Environment variables**: Verify .env configuration matches code usage
+
 ### 8. Documentation Updates
 - Update relevant docs immediately after implementation
 - Document architectural decisions in code comments
@@ -73,6 +89,30 @@ npm run build             # Builds successfully?
 - Check for unnecessary re-renders
 - Monitor memory usage
 - Test with production-like data volumes
+
+#### React Performance Optimization Workflow:
+1. **Identify performance bottlenecks**: Use React DevTools Profiler
+2. **Apply optimizations systematically**:
+   - `React.memo` for components that re-render unnecessarily
+   - `useCallback` for event handlers passed to child components
+   - `useMemo` for expensive calculations
+   - Selective Zustand subscriptions to minimize re-renders
+3. **Create performance tests**: Write tests that verify <16ms render times
+4. **Common mocking patterns for performance tests**:
+   ```javascript
+   // Mock scrollIntoView for jsdom
+   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+     value: jest.fn(),
+     writable: true,
+   });
+   
+   // Mock Three.js components with required methods
+   jest.mock('three', () => ({
+     Scene: jest.fn(() => ({ add: jest.fn(), remove: jest.fn() })),
+     Clock: jest.fn(() => ({ start: jest.fn(), stop: jest.fn() })),
+   }));
+   ```
+5. **Verify optimizations**: Run performance tests to ensure improvements work
 
 ### 10. Final Reflection & Continuous Improvement
 At task completion:

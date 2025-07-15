@@ -12,28 +12,24 @@ import { useConfigStore } from "@/store/configStore";
 export default function Home() {
   const { viewer } = useContext(ViewerContext);
 
-  // Chat store
-  const { 
-    chatProcessing, 
-    chatLog, 
-    assistantMessage, 
-    setChatLog,
-    handleSendChat 
-  } = useChatStore();
+  // Chat store with selective subscriptions
+  const chatProcessing = useChatStore(state => state.chatProcessing);
+  const chatLog = useChatStore(state => state.chatLog);
+  const assistantMessage = useChatStore(state => state.assistantMessage);
+  const setChatLog = useChatStore(state => state.setChatLog);
+  const handleSendChat = useChatStore(state => state.handleSendChat);
 
-  // Config store
-  const { 
-    systemPrompt, 
-    openAiKey, 
-    koeiromapKey, 
-    koeiroParam,
-    setSystemPrompt,
-    setOpenAiKey,
-    setKoeiromapKey,
-    setKoeiroParam,
-    loadFromStorage,
-    saveToStorage
-  } = useConfigStore();
+  // Config store with selective subscriptions
+  const systemPrompt = useConfigStore(state => state.systemPrompt);
+  const openAiKey = useConfigStore(state => state.openAiKey);
+  const koeiromapKey = useConfigStore(state => state.koeiromapKey);
+  const koeiroParam = useConfigStore(state => state.koeiroParam);
+  const setSystemPrompt = useConfigStore(state => state.setSystemPrompt);
+  const setOpenAiKey = useConfigStore(state => state.setOpenAiKey);
+  const setKoeiromapKey = useConfigStore(state => state.setKoeiromapKey);
+  const setKoeiroParam = useConfigStore(state => state.setKoeiroParam);
+  const loadFromStorage = useConfigStore(state => state.loadFromStorage);
+  const saveToStorage = useConfigStore(state => state.saveToStorage);
 
   // Load from localStorage on mount
   useEffect(() => {

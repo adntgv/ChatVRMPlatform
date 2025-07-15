@@ -1,5 +1,5 @@
 import { MessageInput } from "@/components/messageInput";
-import { useState, useEffect, useCallback, useContext, Profiler } from "react";
+import { useState, useEffect, useCallback, useContext, Profiler, useMemo, memo } from "react";
 import { useChatStore } from "@/store/chatStore";
 import { useConfigStore } from "@/store/configStore";
 import { ViewerContext } from "@/features/vrmViewer/viewerContext";
@@ -13,15 +13,31 @@ import { performanceMonitor } from "@/utils/performanceProfiler";
  * Automatically sends when voice recognition is complete, disables input during response generation
  *
  */
-const MessageInputContainerComponent = () => {
-  // Get state and actions from stores
-  const { chatProcessing, handleSendChat } = useChatStore();
-  const { openAiKey, systemPrompt, koeiroParam, koeiromapKey } = useConfigStore();
+const MessageInputContainerComponent = memo(() => {
+  // Get state and actions from stores with selective subscriptions
+  const chatProcessing = useChatStore(state => state.chatProcessing);
+  const handleSendChat = useChatStore(state => state.handleSendChat);
+  
+  const configState = useConfigStore(state => ({
+    openAiKey: state.openAiKey,
+    systemPrompt: state.systemPrompt,
+    koeiroParam: state.koeiroParam,
+    koeiromapKey: state.koeiromapKey,
+  }));
+  
   const { viewer } = useContext(ViewerContext);
   const [userMessage, setUserMessage] = useState("");
   const [speechRecognition, setSpeechRecognition] =
     useState<SpeechRecognition>();
   const [isMicRecording, setIsMicRecording] = useState(false);
+
+  // Memoize the speech handler to prevent recreation on every render
+  const onSpeakAi = useCallback(
+    (screenplay: Screenplay) => {
+      speakCharacter(screenplay, viewer, configState.koeiromapKey);
+    },
+    [viewer, configState.koeiromapKey]
+  );
 
   // Process voice recognition results
   const handleRecognitionResult = useCallback(
@@ -35,17 +51,15 @@ const MessageInputContainerComponent = () => {
         // Start response generation
         handleSendChat(
           text, 
-          openAiKey, 
-          systemPrompt, 
-          koeiroParam, 
-          koeiromapKey,
-          (screenplay: Screenplay) => {
-            speakCharacter(screenplay, viewer, koeiromapKey);
-          }
+          configState.openAiKey, 
+          configState.systemPrompt, 
+          configState.koeiroParam, 
+          configState.koeiromapKey,
+          onSpeakAi
         );
       }
     },
-    [handleSendChat, openAiKey, systemPrompt, koeiroParam, koeiromapKey, viewer]
+    [handleSendChat, configState, onSpeakAi]
   );
 
   // End recognition if silence continues
@@ -68,15 +82,13 @@ const MessageInputContainerComponent = () => {
   const handleClickSendButton = useCallback(() => {
     handleSendChat(
       userMessage, 
-      openAiKey, 
-      systemPrompt, 
-      koeiroParam, 
-      koeiromapKey,
-      (screenplay: Screenplay) => {
-        speakCharacter(screenplay, viewer, koeiromapKey);
-      }
+      configState.openAiKey, 
+      configState.systemPrompt, 
+      configState.koeiroParam, 
+      configState.koeiromapKey,
+      onSpeakAi
     );
-  }, [handleSendChat, userMessage, openAiKey, systemPrompt, koeiroParam, koeiromapKey, viewer]);
+  }, [handleSendChat, userMessage, configState, onSpeakAi]);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -103,17 +115,24 @@ const MessageInputContainerComponent = () => {
     }
   }, [chatProcessing]);
 
+  // Memoize the change handler to prevent recreation
+  const handleChangeUserMessage = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setUserMessage(e.target.value);
+  }, []);
+
   return (
     <MessageInput
       userMessage={userMessage}
       isChatProcessing={chatProcessing}
       isMicRecording={isMicRecording}
-      onChangeUserMessage={(e) => setUserMessage(e.target.value)}
+      onChangeUserMessage={handleChangeUserMessage}
       onClickMicButton={handleClickMicButton}
       onClickSendButton={handleClickSendButton}
     />
   );
-};
+});
+
+MessageInputContainerComponent.displayName = 'MessageInputContainerComponent';
 
 export const MessageInputContainer = () => (
   <Profiler id="MessageInputContainer" onRender={performanceMonitor.recordRender}>
