@@ -13,6 +13,7 @@ export const useConfigStore = create<ConfigStore>()(
   openAiKey: '',
   koeiromapKey: '',
   koeiroParam: DEFAULT_PARAM,
+  selectedVoicePresetId: 'casual',
 
   // Basic setters
   setSystemPrompt: (prompt: string) => 
@@ -27,13 +28,17 @@ export const useConfigStore = create<ConfigStore>()(
   setKoeiroParam: (param: KoeiroParam) => 
     set({ koeiroParam: param }),
 
+  setSelectedVoicePresetId: (presetId: string | null) =>
+    set({ selectedVoicePresetId: presetId }),
+
   // Reset to defaults
   resetToDefaults: () => 
     set({
       systemPrompt: SYSTEM_PROMPT,
       openAiKey: '',
       koeiromapKey: '',
-      koeiroParam: DEFAULT_PARAM
+      koeiroParam: DEFAULT_PARAM,
+      selectedVoicePresetId: 'casual'
     }),
 
   // localStorage integration
@@ -44,7 +49,10 @@ export const useConfigStore = create<ConfigStore>()(
         const params: StorageData = JSON.parse(stored);
         set({
           systemPrompt: params.systemPrompt ?? SYSTEM_PROMPT,
-          koeiroParam: params.koeiroParam ?? DEFAULT_PARAM
+          koeiroParam: params.koeiroParam ?? DEFAULT_PARAM,
+          selectedVoicePresetId: params.selectedVoicePresetId !== undefined 
+            ? params.selectedVoicePresetId 
+            : 'casual'
         });
       }
     } catch (error: any) {
@@ -68,12 +76,13 @@ export const useConfigStore = create<ConfigStore>()(
   },
 
   saveToStorage: (chatLog: Message[] = []) => {
-    const { systemPrompt, koeiroParam } = get();
+    const { systemPrompt, koeiroParam, selectedVoicePresetId } = get();
     
     try {
       const dataToSave: StorageData = {
         systemPrompt,
         koeiroParam,
+        selectedVoicePresetId,
         chatLog
       };
       

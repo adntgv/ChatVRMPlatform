@@ -34,6 +34,7 @@ export interface ConfigState {
   openAiKey: string;
   koeiromapKey: string;
   koeiroParam: KoeiroParam;
+  selectedVoicePresetId: string | null;
 }
 
 export interface ConfigActions {
@@ -41,6 +42,7 @@ export interface ConfigActions {
   setOpenAiKey: (key: string) => void;
   setKoeiromapKey: (key: string) => void;
   setKoeiroParam: (param: KoeiroParam) => void;
+  setSelectedVoicePresetId: (presetId: string | null) => void;
   resetToDefaults: () => void;
   loadFromStorage: () => void;
   saveToStorage: (chatLog?: Message[]) => void;
@@ -52,5 +54,6 @@ export interface ConfigStore extends ConfigState, ConfigActions {}
 export interface StorageData {
   systemPrompt?: string;
   koeiroParam?: KoeiroParam;
+  selectedVoicePresetId?: string | null;
   chatLog?: Message[];
 }

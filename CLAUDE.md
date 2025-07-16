@@ -399,6 +399,22 @@ jest.mock('@/store/chatStore', () => ({
     return selector ? selector(mockState) : mockState;
   }),
 }));
+
+// Enhanced Zustand mocking pattern for stores with multiple selectors
+jest.mock('@/store/configStore', () => ({
+  useConfigStore: jest.fn()
+}));
+
+// In test setup:
+const mockSetSelectedVoicePresetId = jest.fn();
+(useConfigStore as unknown as jest.Mock).mockImplementation((selector) => {
+  const state = {
+    selectedVoicePresetId: 'casual',
+    setSelectedVoicePresetId: mockSetSelectedVoicePresetId,
+    koeiroParam: { speakerX: 3, speakerY: 3 }
+  };
+  return selector ? selector(state) : state;
+});
 ```
 
 #### Integration Testing Approach:
@@ -472,6 +488,28 @@ it('should not cause infinite re-renders', () => {
 
   expect(renderCount).toBe(1); // Should only render once
 });
+```
+
+#### State Persistence Patterns:
+```javascript
+// Handling null vs undefined in localStorage persistence
+// ❌ BAD: Using nullish coalescing for nullable values
+const selectedVoicePresetId = params.selectedVoicePresetId ?? 'default';
+// This converts null (valid custom voice state) to 'default'
+
+// ✅ GOOD: Explicitly check for undefined
+const selectedVoicePresetId = params.selectedVoicePresetId !== undefined 
+  ? params.selectedVoicePresetId 
+  : 'default';
+// This preserves null for custom voice while providing default for missing values
+
+// ✅ GOOD: Type your storage data interface
+interface StorageData {
+  systemPrompt?: string;
+  koeiroParam?: KoeiroParam;
+  selectedVoicePresetId?: string | null;  // Explicitly nullable
+  chatLog?: Message[];
+}
 ```
 
 #### React Performance Optimization Patterns:

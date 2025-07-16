@@ -134,7 +134,24 @@ ChatVRM is currently a proof-of-concept demo application showcasing 3D character
   - ✅ Integrated controls into Settings panel in Menu
   - ✅ Emotion controls: neutral, happy, angry, sad, relaxed
   - ✅ Animation controls: upload, play/pause, stop, speed, loop
-- [ ] Add voice selection options for TTS
+- [x] Add voice selection options for TTS - **COMPLETED 2025-07-16**
+  - ✅ Enhanced voice presets from 4 to 11 options with descriptions
+  - ✅ Created VoiceSelection component with categorized presets
+  - ✅ Added voice preset tracking in config store
+  - ✅ Implemented custom voice parameter adjustment
+  - ✅ Created comprehensive tests for voice selection feature
+- [ ] Add voice preview/sample playback for voice presets
+  - [ ] Generate sample audio for each preset
+  - [ ] Add preview button to VoiceSelection component
+  - [ ] Implement audio playback on hover/click
+- [ ] Implement custom voice profiles
+  - [ ] Allow users to save custom voice settings with names
+  - [ ] Add profile management (create, edit, delete)
+  - [ ] Persist custom profiles to localStorage/IndexedDB
+- [ ] Enhance voice synthesis parameters
+  - [ ] Explore additional Koeiromap API parameters
+  - [ ] Add pitch and speed controls (if supported)
+  - [ ] Implement emotion intensity adjustment
 - [ ] Improve character introduction experience
 - [ ] Add loading states and error boundaries
 - [ ] Enhance mobile responsiveness

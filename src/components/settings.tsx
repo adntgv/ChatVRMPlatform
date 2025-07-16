@@ -3,16 +3,11 @@ import { config } from "@/config";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
 import { Message } from "@/features/messages/messages";
-import {
-  KoeiroParam,
-  PRESET_A,
-  PRESET_B,
-  PRESET_C,
-  PRESET_D,
-} from "@/features/constants/koeiroParam";
+import { KoeiroParam } from "@/features/constants/koeiroParam";
 import { Link } from "./link";
 import { EmotionControl, Emotion } from "./emotionControl";
 import { AnimationControl, Animation } from "./animationControl";
+import { VoiceSelection } from "./voiceSelection";
 
 type Props = {
   openAiKey: string;
@@ -76,37 +71,6 @@ export const Settings = memo(({
   onSpeedChange,
   onLoopToggle,
 }: Props) => {
-  // Memoize preset click handlers to prevent recreation
-  const handlePresetA = useCallback(() => {
-    onChangeKoeiroParam(PRESET_A.speakerX, PRESET_A.speakerY);
-  }, [onChangeKoeiroParam]);
-  
-  const handlePresetB = useCallback(() => {
-    onChangeKoeiroParam(PRESET_B.speakerX, PRESET_B.speakerY);
-  }, [onChangeKoeiroParam]);
-  
-  const handlePresetC = useCallback(() => {
-    onChangeKoeiroParam(PRESET_C.speakerX, PRESET_C.speakerY);
-  }, [onChangeKoeiroParam]);
-  
-  const handlePresetD = useCallback(() => {
-    onChangeKoeiroParam(PRESET_D.speakerX, PRESET_D.speakerY);
-  }, [onChangeKoeiroParam]);
-
-  // Use ref to track current koeiroParam values without causing re-renders
-  const koeiroParamRef = useRef(koeiroParam);
-  useEffect(() => {
-    koeiroParamRef.current = koeiroParam;
-  }, [koeiroParam]);
-
-  // Memoize range change handlers using ref to avoid stale closures
-  const handleSpeakerXChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeKoeiroParam(Number(e.target.value), koeiroParamRef.current.speakerY);
-  }, [onChangeKoeiroParam]);
-  
-  const handleSpeakerYChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeKoeiroParam(koeiroParamRef.current.speakerX, Number(e.target.value));
-  }, [onChangeKoeiroParam]);
 
   // Memoize chat log items to prevent recreation
   const chatLogItems = useMemo(() => {
@@ -234,41 +198,11 @@ export const Settings = memo(({
               />
             </div>
 
-            <div className="mt-16 font-bold">Presets</div>
-            <div className="my-8 grid grid-cols-2 gap-[8px]">
-              <TextButton onClick={handlePresetA}>
-                Cute
-              </TextButton>
-              <TextButton onClick={handlePresetB}>
-                Energetic
-              </TextButton>
-              <TextButton onClick={handlePresetC}>
-                Cool
-              </TextButton>
-              <TextButton onClick={handlePresetD}>
-                Deep
-              </TextButton>
-            </div>
-            <div className="my-24">
-              <div className="select-none">x : {koeiroParam.speakerX}</div>
-              <input
-                type="range"
-                min={-10}
-                max={config.ui.settingsSliderMax}
-                step={0.001}
-                value={koeiroParam.speakerX}
-                className="mt-8 mb-16 input-range"
-                onChange={handleSpeakerXChange}
-              />
-              <div className="select-none">y : {koeiroParam.speakerY}</div>
-              <input
-                type="range"
-                min={-10}
-                max={config.ui.settingsSliderMax}
-                step={0.001}
-                value={koeiroParam.speakerY}
-                className="mt-8 mb-16 input-range"
-                onChange={handleSpeakerYChange}
+            <div className="mt-24">
+              <VoiceSelection
+                currentParams={koeiroParam}
+                onVoiceChange={onChangeKoeiroParam}
+                showAdvanced={true}
               />
             </div>
           </div>
