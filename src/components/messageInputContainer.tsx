@@ -18,12 +18,11 @@ const MessageInputContainerComponent = memo(() => {
   const chatProcessing = useChatStore(state => state.chatProcessing);
   const handleSendChat = useChatStore(state => state.handleSendChat);
   
-  const configState = useConfigStore(state => ({
-    openAiKey: state.openAiKey,
-    systemPrompt: state.systemPrompt,
-    koeiroParam: state.koeiroParam,
-    koeiromapKey: state.koeiromapKey,
-  }));
+  // Use individual selectors to avoid object creation in selector
+  const openAiKey = useConfigStore(state => state.openAiKey);
+  const systemPrompt = useConfigStore(state => state.systemPrompt);
+  const koeiroParam = useConfigStore(state => state.koeiroParam);
+  const koeiromapKey = useConfigStore(state => state.koeiromapKey);
   
   const { viewer } = useContext(ViewerContext);
   const [userMessage, setUserMessage] = useState("");
@@ -34,9 +33,9 @@ const MessageInputContainerComponent = memo(() => {
   // Memoize the speech handler to prevent recreation on every render
   const onSpeakAi = useCallback(
     (screenplay: Screenplay) => {
-      speakCharacter(screenplay, viewer, configState.koeiromapKey);
+      speakCharacter(screenplay, viewer, koeiromapKey);
     },
-    [viewer, configState.koeiromapKey]
+    [viewer, koeiromapKey]
   );
 
   // Process voice recognition results
@@ -51,15 +50,15 @@ const MessageInputContainerComponent = memo(() => {
         // Start response generation
         handleSendChat(
           text, 
-          configState.openAiKey, 
-          configState.systemPrompt, 
-          configState.koeiroParam, 
-          configState.koeiromapKey,
+          openAiKey, 
+          systemPrompt, 
+          koeiroParam, 
+          koeiromapKey,
           onSpeakAi
         );
       }
     },
-    [handleSendChat, configState, onSpeakAi]
+    [handleSendChat, openAiKey, systemPrompt, koeiroParam, koeiromapKey, onSpeakAi]
   );
 
   // End recognition if silence continues
@@ -82,13 +81,13 @@ const MessageInputContainerComponent = memo(() => {
   const handleClickSendButton = useCallback(() => {
     handleSendChat(
       userMessage, 
-      configState.openAiKey, 
-      configState.systemPrompt, 
-      configState.koeiroParam, 
-      configState.koeiromapKey,
+      openAiKey, 
+      systemPrompt, 
+      koeiroParam, 
+      koeiromapKey,
       onSpeakAi
     );
-  }, [handleSendChat, userMessage, configState, onSpeakAi]);
+  }, [handleSendChat, userMessage, openAiKey, systemPrompt, koeiroParam, koeiromapKey, onSpeakAi]);
 
   useEffect(() => {
     const SpeechRecognition =

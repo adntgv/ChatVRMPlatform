@@ -1,11 +1,13 @@
 import { create } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
 import { Message, textsToScreenplay, Screenplay } from '@/features/messages/messages';
 import { getChatResponseStream } from '@/features/chat/openAiChat';
 import { ChatStore } from '@/types/store';
 import { KoeiroParam } from '@/features/constants/koeiroParam';
 import { AppError, ErrorType, ErrorSeverity, errorHandler, handleApiError } from '@/lib/errorHandler';
 
-export const useChatStore = create<ChatStore>((set, get) => ({
+export const useChatStore = create<ChatStore>()(
+  subscribeWithSelector((set, get) => ({
   // Initial state
   chatProcessing: false,
   chatLog: [],
@@ -210,4 +212,4 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       setAssistantMessage('申し訳ございません。チャットの処理中にエラーが発生しました。');
     }
   }
-}));
+})));

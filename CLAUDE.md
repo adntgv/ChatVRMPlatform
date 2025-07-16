@@ -419,6 +419,61 @@ jest.mock('@/store/chatStore', () => ({
 3. **Profile before optimizing**: Use React DevTools and Chrome Performance tab
 4. **Consider WebWorkers** for heavy computations that dont need DOM access
 
+### Critical State Management Patterns (Prevent Infinite Loops)
+
+#### Zustand Selector Anti-patterns to Avoid:
+```javascript
+// ❌ BAD: Creating objects in selectors causes infinite re-renders
+const configState = useConfigStore(state => ({
+  openAiKey: state.openAiKey,
+  systemPrompt: state.systemPrompt,
+}));
+
+// ✅ GOOD: Use individual selectors
+const openAiKey = useConfigStore(state => state.openAiKey);
+const systemPrompt = useConfigStore(state => state.systemPrompt);
+
+// ✅ GOOD: Or use shallow equality check
+import { shallow } from 'zustand/shallow';
+const configState = useConfigStore(
+  state => ({ openAiKey: state.openAiKey, systemPrompt: state.systemPrompt }),
+  shallow
+);
+```
+
+#### Avoiding Circular Dependencies in useCallback:
+```javascript
+// ❌ BAD: Circular dependency causes infinite loop
+const handleXChange = useCallback((x) => {
+  onChange(x, state.y);
+}, [onChange, state.y]); // state.y changes → recreates callback → triggers effect → loop
+
+// ✅ GOOD: Use ref to track values without re-renders
+const stateRef = useRef(state);
+useEffect(() => {
+  stateRef.current = state;
+}, [state]);
+
+const handleXChange = useCallback((x) => {
+  onChange(x, stateRef.current.y);
+}, [onChange]); // Stable dependencies
+```
+
+#### Testing for Infinite Loops:
+```javascript
+// Add this test to catch infinite re-renders early
+it('should not cause infinite re-renders', () => {
+  let renderCount = 0;
+  
+  const { result } = renderHook(() => {
+    renderCount++;
+    return useYourHook();
+  });
+
+  expect(renderCount).toBe(1); // Should only render once
+});
+```
+
 #### React Performance Optimization Patterns:
 ```javascript
 // Selective Zustand subscriptions - minimize re-renders

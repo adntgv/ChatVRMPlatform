@@ -1,11 +1,13 @@
 import { create } from 'zustand';
+import { subscribeWithSelector } from 'zustand/middleware';
 import { SYSTEM_PROMPT } from '@/features/constants/systemPromptConstants';
 import { DEFAULT_PARAM, KoeiroParam } from '@/features/constants/koeiroParam';
 import { ConfigStore, StorageData } from '@/types/store';
 import { Message } from '@/features/messages/messages';
 import { AppError, ErrorType, ErrorSeverity, errorHandler } from '@/lib/errorHandler';
 
-export const useConfigStore = create<ConfigStore>((set, get) => ({
+export const useConfigStore = create<ConfigStore>()(
+  subscribeWithSelector((set, get) => ({
   // Initial state
   systemPrompt: SYSTEM_PROMPT,
   openAiKey: '',
@@ -99,4 +101,4 @@ export const useConfigStore = create<ConfigStore>((set, get) => ({
       errorHandler.handle(appError);
     }
   }
-}));
+})));

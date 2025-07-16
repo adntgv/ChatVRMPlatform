@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo, useRef, useEffect } from "react";
 import { config } from "@/config";
 import { IconButton } from "./iconButton";
 import { TextButton } from "./textButton";
@@ -11,6 +11,8 @@ import {
   PRESET_D,
 } from "@/features/constants/koeiroParam";
 import { Link } from "./link";
+import { EmotionControl, Emotion } from "./emotionControl";
+import { AnimationControl, Animation } from "./animationControl";
 
 type Props = {
   openAiKey: string;
@@ -27,6 +29,21 @@ type Props = {
   onClickResetChatLog: () => void;
   onClickResetSystemPrompt: () => void;
   onChangeKoeiromapKey: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  // Emotion controls
+  currentEmotion: Emotion;
+  onEmotionChange: (emotion: Emotion) => void;
+  // Animation controls
+  animations: Animation[];
+  currentAnimation: Animation | null;
+  isPlaying: boolean;
+  animationSpeed: number;
+  loop: boolean;
+  onAnimationUpload: (file: File) => void;
+  onAnimationSelect: (animation: Animation) => void;
+  onAnimationPlay: () => void;
+  onAnimationStop: () => void;
+  onSpeedChange: (speed: number) => void;
+  onLoopToggle: (loop: boolean) => void;
 };
 export const Settings = memo(({
   openAiKey,
@@ -43,6 +60,21 @@ export const Settings = memo(({
   onClickResetChatLog,
   onClickResetSystemPrompt,
   onChangeKoeiromapKey,
+  // Emotion controls
+  currentEmotion,
+  onEmotionChange,
+  // Animation controls
+  animations,
+  currentAnimation,
+  isPlaying,
+  animationSpeed,
+  loop,
+  onAnimationUpload,
+  onAnimationSelect,
+  onAnimationPlay,
+  onAnimationStop,
+  onSpeedChange,
+  onLoopToggle,
 }: Props) => {
   // Memoize preset click handlers to prevent recreation
   const handlePresetA = useCallback(() => {
@@ -61,14 +93,20 @@ export const Settings = memo(({
     onChangeKoeiroParam(PRESET_D.speakerX, PRESET_D.speakerY);
   }, [onChangeKoeiroParam]);
 
-  // Memoize range change handlers
+  // Use ref to track current koeiroParam values without causing re-renders
+  const koeiroParamRef = useRef(koeiroParam);
+  useEffect(() => {
+    koeiroParamRef.current = koeiroParam;
+  }, [koeiroParam]);
+
+  // Memoize range change handlers using ref to avoid stale closures
   const handleSpeakerXChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeKoeiroParam(Number(e.target.value), koeiroParam.speakerY);
-  }, [onChangeKoeiroParam, koeiroParam.speakerY]);
+    onChangeKoeiroParam(Number(e.target.value), koeiroParamRef.current.speakerY);
+  }, [onChangeKoeiroParam]);
   
   const handleSpeakerYChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onChangeKoeiroParam(koeiroParam.speakerX, Number(e.target.value));
-  }, [onChangeKoeiroParam, koeiroParam.speakerX]);
+    onChangeKoeiroParam(koeiroParamRef.current.speakerX, Number(e.target.value));
+  }, [onChangeKoeiroParam]);
 
   // Memoize chat log items to prevent recreation
   const chatLogItems = useMemo(() => {
@@ -140,6 +178,25 @@ export const Settings = memo(({
               <TextButton onClick={onClickOpenVrmFile}>Open VRM</TextButton>
             </div>
           </div>
+          
+          <EmotionControl
+            currentEmotion={currentEmotion}
+            onEmotionChange={onEmotionChange}
+          />
+          
+          <AnimationControl
+            animations={animations}
+            currentAnimation={currentAnimation}
+            isPlaying={isPlaying}
+            speed={animationSpeed}
+            loop={loop}
+            onAnimationUpload={onAnimationUpload}
+            onAnimationSelect={onAnimationSelect}
+            onAnimationPlay={onAnimationPlay}
+            onAnimationStop={onAnimationStop}
+            onSpeedChange={onSpeedChange}
+            onLoopToggle={onLoopToggle}
+          />
           <div className="my-40">
             <div className="my-8">
               <div className="my-16 typography-20 font-bold">

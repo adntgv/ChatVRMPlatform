@@ -163,3 +163,11 @@ When implementing system-wide changes (like error handling):
 3. **Prioritize by impact**: API routes (high), stores (medium), UI components (low)
 4. **Use TodoWrite extensively** - complex tasks need 6+ subtasks for proper tracking
 5. **Test as you go** - don't wait until the end to run tests
+
+### State Management & Performance Validation
+After implementing state management features:
+1. **Test for infinite loops immediately**: Add a render count test to catch re-render issues
+2. **Check Zustand selectors**: Ensure no objects are created inside selectors
+3. **Verify useCallback dependencies**: Look for circular dependencies that could cause loops
+4. **Run the app in dev mode**: Check browser console for "Maximum update depth exceeded" errors
+5. **Use React DevTools Profiler**: Verify components aren't re-rendering excessively

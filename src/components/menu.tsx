@@ -11,6 +11,7 @@ import { useChatStore } from "@/store/chatStore";
 import { useConfigStore } from "@/store/configStore";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 import { performanceMonitor } from "@/utils/performanceProfiler";
+import { useEmotionAnimationControls } from "@/hooks/useEmotionAnimationControls";
 
 const MenuComponent = () => {
   // Get state and actions from stores
@@ -33,6 +34,9 @@ const MenuComponent = () => {
   const [isVrmLoading, setIsVrmLoading] = useState(false);
   const { viewer } = useContext(ViewerContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Emotion and animation controls
+  const emotionAnimationControls = useEmotionAnimationControls();
   
   // VRM persistence hook
   const { loadLastUsedVrm } = useVrmPersistence({
@@ -210,6 +214,21 @@ const MenuComponent = () => {
           onClickResetChatLog={clearChat}
           onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
           onChangeKoeiromapKey={handleChangeKoeiromapKey}
+          // Emotion controls
+          currentEmotion={emotionAnimationControls.currentEmotion}
+          onEmotionChange={emotionAnimationControls.onEmotionChange}
+          // Animation controls
+          animations={emotionAnimationControls.animations}
+          currentAnimation={emotionAnimationControls.currentAnimation}
+          isPlaying={emotionAnimationControls.isPlaying}
+          animationSpeed={emotionAnimationControls.animationSpeed}
+          loop={emotionAnimationControls.loop}
+          onAnimationUpload={emotionAnimationControls.onAnimationUpload}
+          onAnimationSelect={emotionAnimationControls.onAnimationSelect}
+          onAnimationPlay={emotionAnimationControls.onAnimationPlay}
+          onAnimationStop={emotionAnimationControls.onAnimationStop}
+          onSpeedChange={emotionAnimationControls.onSpeedChange}
+          onLoopToggle={emotionAnimationControls.onLoopToggle}
         />
       )}
       {!showChatLog && assistantMessage && (
