@@ -1,43 +1,67 @@
 import { MessageInput } from "@/components/messageInput";
-import { useState, useEffect, useCallback } from "react";
-
-type Props = {
-  isChatProcessing: boolean;
-  onChatProcessStart: (text: string) => void;
-};
+import { useState, useEffect, useCallback, useContext, Profiler, useMemo, memo } from "react";
+import { useChatStore } from "@/store/chatStore";
+import { useConfigStore } from "@/store/configStore";
+import { ViewerContext } from "@/features/vrmViewer/viewerContext";
+import { speakCharacter } from "@/features/messages/speakCharacter";
+import { Screenplay } from "@/features/messages/messages";
+import { performanceMonitor } from "@/utils/performanceProfiler";
 
 /**
- * テキスト入力と音声入力を提供する
+ * Provides text and voice input
  *
- * 音声認識の完了時は自動で送信し、返答文の生成中は入力を無効化する
+ * Automatically sends when voice recognition is complete, disables input during response generation
  *
  */
-export const MessageInputContainer = ({
-  isChatProcessing,
-  onChatProcessStart,
-}: Props) => {
+const MessageInputContainerComponent = memo(() => {
+  // Get state and actions from stores with selective subscriptions
+  const chatProcessing = useChatStore(state => state.chatProcessing);
+  const handleSendChat = useChatStore(state => state.handleSendChat);
+  
+  // Use individual selectors to avoid object creation in selector
+  const openAiKey = useConfigStore(state => state.openAiKey);
+  const systemPrompt = useConfigStore(state => state.systemPrompt);
+  const koeiroParam = useConfigStore(state => state.koeiroParam);
+  const koeiromapKey = useConfigStore(state => state.koeiromapKey);
+  
+  const { viewer } = useContext(ViewerContext);
   const [userMessage, setUserMessage] = useState("");
   const [speechRecognition, setSpeechRecognition] =
     useState<SpeechRecognition>();
   const [isMicRecording, setIsMicRecording] = useState(false);
 
-  // 音声認識の結果を処理する
+  // Memoize the speech handler to prevent recreation on every render
+  const onSpeakAi = useCallback(
+    (screenplay: Screenplay) => {
+      speakCharacter(screenplay, viewer, koeiromapKey);
+    },
+    [viewer, koeiromapKey]
+  );
+
+  // Process voice recognition results
   const handleRecognitionResult = useCallback(
     (event: SpeechRecognitionEvent) => {
       const text = event.results[0][0].transcript;
       setUserMessage(text);
 
-      // 発言の終了時
+      // When speech ends
       if (event.results[0].isFinal) {
         setUserMessage(text);
-        // 返答文の生成を開始
-        onChatProcessStart(text);
+        // Start response generation
+        handleSendChat(
+          text, 
+          openAiKey, 
+          systemPrompt, 
+          koeiroParam, 
+          koeiromapKey,
+          onSpeakAi
+        );
       }
     },
-    [onChatProcessStart]
+    [handleSendChat, openAiKey, systemPrompt, koeiroParam, koeiromapKey, onSpeakAi]
   );
 
-  // 無音が続いた場合も終了する
+  // End recognition if silence continues
   const handleRecognitionEnd = useCallback(() => {
     setIsMicRecording(false);
   }, []);
@@ -55,21 +79,28 @@ export const MessageInputContainer = ({
   }, [isMicRecording, speechRecognition]);
 
   const handleClickSendButton = useCallback(() => {
-    onChatProcessStart(userMessage);
-  }, [onChatProcessStart, userMessage]);
+    handleSendChat(
+      userMessage, 
+      openAiKey, 
+      systemPrompt, 
+      koeiroParam, 
+      koeiromapKey,
+      onSpeakAi
+    );
+  }, [handleSendChat, userMessage, openAiKey, systemPrompt, koeiroParam, koeiromapKey, onSpeakAi]);
 
   useEffect(() => {
     const SpeechRecognition =
       window.webkitSpeechRecognition || window.SpeechRecognition;
 
-    // FirefoxなどSpeechRecognition非対応環境対策
+    // Handle environments that don't support SpeechRecognition like Firefox
     if (!SpeechRecognition) {
       return;
     }
     const recognition = new SpeechRecognition();
-    recognition.lang = "ja-JP";
-    recognition.interimResults = true; // 認識の途中結果を返す
-    recognition.continuous = false; // 発言の終了時に認識を終了する
+    recognition.lang = "en-US";
+    recognition.interimResults = true; // Return interim recognition results
+    recognition.continuous = false; // End recognition when speech ends
 
     recognition.addEventListener("result", handleRecognitionResult);
     recognition.addEventListener("end", handleRecognitionEnd);
@@ -78,19 +109,32 @@ export const MessageInputContainer = ({
   }, [handleRecognitionResult, handleRecognitionEnd]);
 
   useEffect(() => {
-    if (!isChatProcessing) {
+    if (!chatProcessing) {
       setUserMessage("");
     }
-  }, [isChatProcessing]);
+  }, [chatProcessing]);
+
+  // Memoize the change handler to prevent recreation
+  const handleChangeUserMessage = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setUserMessage(e.target.value);
+  }, []);
 
   return (
     <MessageInput
       userMessage={userMessage}
-      isChatProcessing={isChatProcessing}
+      isChatProcessing={chatProcessing}
       isMicRecording={isMicRecording}
-      onChangeUserMessage={(e) => setUserMessage(e.target.value)}
+      onChangeUserMessage={handleChangeUserMessage}
       onClickMicButton={handleClickMicButton}
       onClickSendButton={handleClickSendButton}
     />
   );
-};
+});
+
+MessageInputContainerComponent.displayName = 'MessageInputContainerComponent';
+
+export const MessageInputContainer = () => (
+  <Profiler id="MessageInputContainer" onRender={performanceMonitor.recordRender}>
+    <MessageInputContainerComponent />
+  </Profiler>
+);

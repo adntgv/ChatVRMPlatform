@@ -1,9 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { Message } from "@/features/messages/messages";
+
 type Props = {
   messages: Message[];
 };
-export const ChatLog = ({ messages }: Props) => {
+
+export const ChatLog = memo(({ messages }: Props) => {
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,9 +34,11 @@ export const ChatLog = ({ messages }: Props) => {
       </div>
     </div>
   );
-};
+});
 
-const Chat = ({ role, message }: { role: string; message: string }) => {
+ChatLog.displayName = 'ChatLog';
+
+const Chat = memo(({ role, message }: { role: string; message: string }) => {
   const roleColor =
     role === "assistant" ? "bg-secondary text-white " : "bg-base text-primary";
   const roleText = role === "assistant" ? "text-secondary" : "text-primary";
@@ -52,4 +56,6 @@ const Chat = ({ role, message }: { role: string; message: string }) => {
       </div>
     </div>
   );
-};
+});
+
+Chat.displayName = 'Chat';
