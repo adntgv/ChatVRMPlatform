@@ -104,26 +104,32 @@ export const Menu = ({
         <div className="grid grid-flow-col gap-[8px]">
           <IconButton
             iconName="24/Menu"
-            label="設定"
+            label="Settings"
             isProcessing={false}
             onClick={() => setShowSettings(true)}
           ></IconButton>
           {showChatLog ? (
             <IconButton
               iconName="24/CommentOutline"
-              label="会話ログ"
+              label="Chat Log"
               isProcessing={false}
               onClick={() => setShowChatLog(false)}
             />
           ) : (
             <IconButton
               iconName="24/CommentFill"
-              label="会話ログ"
+              label="Chat Log"
               isProcessing={false}
               disabled={chatLog.length <= 0}
               onClick={() => setShowChatLog(true)}
             />
           )}
+          <IconButton
+            iconName="24/Home"
+            label="Dashboard"
+            isProcessing={false}
+            onClick={() => window.open('/dashboard', '_blank')}
+          />
         </div>
       </div>
       {showChatLog && <ChatLog messages={chatLog} />}

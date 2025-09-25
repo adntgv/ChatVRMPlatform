@@ -46,4 +46,161 @@ body {
   .scroll-hidden::-webkit-scrollbar {
     display: none;
   }
+
+  /* Safe area for notched devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Touch-friendly sizing */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile-specific utilities */
+  @media (max-width: 767px) {
+    .mobile-menu-open {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-radius: 1rem 1rem 0 0;
+      box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .mobile-card {
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  /* Responsive touch targets */
+  .touch-button {
+    min-height: 44px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .touch-button {
+      min-height: auto;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
+    }
+  }
+
+  /* Manual responsive utilities for md breakpoint */
+  @media (min-width: 768px) {
+    .md\:hidden {
+      display: none !important;
+    }
+    .md\:flex {
+      display: flex !important;
+    }
+    .md\:block {
+      display: block !important;
+    }
+  }
+
+  /* Button utility classes for consistent styling - Direct CSS instead of @apply */
+  .btn-primary {
+    background-color: rgb(37, 99, 235) !important; /* blue-600 */
+    color: white !important;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .btn-primary:hover {
+    background-color: rgb(29, 78, 216) !important; /* blue-700 */
+  }
+
+  .btn-secondary {
+    background-color: rgb(75, 85, 99) !important; /* gray-600 */
+    color: white !important;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .btn-secondary:hover {
+    background-color: rgb(55, 65, 81) !important; /* gray-700 */
+  }
+
+  .btn-success {
+    background-color: rgb(22, 163, 74) !important; /* green-600 */
+    color: white !important;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .btn-success:hover {
+    background-color: rgb(21, 128, 61) !important; /* green-700 */
+  }
+
+  .btn-danger {
+    background-color: rgb(220, 38, 38) !important; /* red-600 */
+    color: white !important;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .btn-danger:hover {
+    background-color: rgb(185, 28, 28) !important; /* red-700 */
+  }
+
+  .btn-warning {
+    background-color: rgb(202, 138, 4) !important; /* yellow-600 */
+    color: rgb(17, 24, 39) !important; /* gray-900 */
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .btn-warning:hover {
+    background-color: rgb(161, 98, 7) !important; /* yellow-700 */
+  }
+
+  .btn-info {
+    background-color: rgb(147, 51, 234) !important; /* purple-600 */
+    color: white !important;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .btn-info:hover {
+    background-color: rgb(126, 34, 206) !important; /* purple-700 */
+  }
+
+  /* Ensure good contrast on focus */
+  button:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+
+  /* Disabled state */
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
+/* Rebuild trigger */
