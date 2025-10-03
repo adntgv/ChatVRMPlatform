@@ -197,6 +197,20 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
+
+            {/* Classic Mode Access */}
+            <div className="mt-8 pt-6 border-t">
+              <button
+                onClick={() => router.push('/classic')}
+                className="w-full p-4 bg-gray-800 hover:bg-gray-900 text-white rounded-xl transition-colors flex items-center justify-center gap-3"
+              >
+                <span className="text-2xl">⚡</span>
+                <div className="text-left">
+                  <div className="font-bold">Classic Mode</div>
+                  <div className="text-sm opacity-90">Single character admin interface</div>
+                </div>
+              </button>
+            </div>
           </div>
         )}
       </div>
