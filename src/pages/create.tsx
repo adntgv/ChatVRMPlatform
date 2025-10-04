@@ -9,6 +9,8 @@ import {
   PRESET_C,
   PRESET_D,
 } from "@/features/constants/koeiroParam";
+import { VrmLibrary } from "@/components/vrmLibrary";
+import { VrmModelInfo } from "@/features/constants/vrmModels";
 
 export default function CreateInstancePage() {
   const router = useRouter();
@@ -16,6 +18,8 @@ export default function CreateInstancePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(1);
+  const [vrmTab, setVrmTab] = useState<'library' | 'upload'>('library');
+  const [showVrmLibrary, setShowVrmLibrary] = useState(false);
   const [formData, setFormData] = useState({
     // Basic Info
     name: '',
@@ -29,6 +33,7 @@ export default function CreateInstancePage() {
     // VRM Model
     vrmName: 'Default VRM',
     vrmFile: null as File | null,
+    vrmUrl: '' as string,
 
     // Voice Settings
     voicePreset: 'cute',
@@ -79,12 +84,23 @@ export default function CreateInstancePage() {
         ...formData,
         vrmFile: file,
         vrmName: file.name,
+        vrmUrl: '', // Clear library URL when uploading
       });
     }
   };
 
-  const handleSubmit = () => {
-    const instance = createInstance({
+  const handleVrmLibrarySelect = (url: string, modelInfo: VrmModelInfo) => {
+    setFormData({
+      ...formData,
+      vrmUrl: url,
+      vrmName: modelInfo.name,
+      vrmFile: null, // Clear uploaded file when selecting from library
+    });
+    setShowVrmLibrary(false);
+  };
+
+  const handleSubmit = async () => {
+    const instance = await createInstance({
       name: formData.name || 'New Character',
       description: formData.description,
       apiKeys: {
@@ -93,6 +109,8 @@ export default function CreateInstancePage() {
       },
       vrmModel: {
         name: formData.vrmName,
+        url: formData.vrmUrl || undefined,
+        file: formData.vrmFile || undefined,
       },
       voice: {
         speakerX: formData.speakerX,
@@ -263,9 +281,71 @@ export default function CreateInstancePage() {
           {step === 3 && (
             <div>
               <h2 className="text-xl font-bold mb-6">3D Character Model</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">VRM Model</label>
+
+              {/* Tab Navigation */}
+              <div className="flex gap-2 mb-6 border-b">
+                <button
+                  onClick={() => setVrmTab('library')}
+                  className={`px-4 py-2 font-medium transition-colors ${
+                    vrmTab === 'library'
+                      ? 'border-b-2 border-blue-600 text-blue-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  📚 Library
+                </button>
+                <button
+                  onClick={() => setVrmTab('upload')}
+                  className={`px-4 py-2 font-medium transition-colors ${
+                    vrmTab === 'upload'
+                      ? 'border-b-2 border-blue-600 text-blue-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  📤 Upload
+                </button>
+              </div>
+
+              {/* Library Tab */}
+              {vrmTab === 'library' && (
+                <div className="space-y-4">
+                  <p className="text-gray-600 mb-4">
+                    Choose from pre-installed VRM models
+                  </p>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    {formData.vrmUrl ? (
+                      <div>
+                        <p className="text-green-600 mb-2">✓ {formData.vrmName}</p>
+                        <button
+                          onClick={() => setShowVrmLibrary(true)}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        >
+                          Change Model
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-gray-500 mb-4">
+                          Browse available VRM models
+                        </p>
+                        <button
+                          onClick={() => setShowVrmLibrary(true)}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        >
+                          Open VRM Library
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload Tab */}
+              {vrmTab === 'upload' && (
+                <div className="space-y-4">
+                  <p className="text-gray-600 mb-4">
+                    Upload your own VRM file
+                  </p>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     {formData.vrmFile ? (
                       <div>
@@ -280,7 +360,7 @@ export default function CreateInstancePage() {
                     ) : (
                       <div>
                         <p className="text-gray-500 mb-4">
-                          Upload a VRM file or use the default model
+                          Upload a VRM file (max 50MB)
                         </p>
                         <button
                           onClick={() => fileInputRef.current?.click()}
@@ -299,7 +379,16 @@ export default function CreateInstancePage() {
                     className="hidden"
                   />
                 </div>
-              </div>
+              )}
+
+              {/* Selected Model Info */}
+              {(formData.vrmUrl || formData.vrmFile) && (
+                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    <strong>Selected:</strong> {formData.vrmName}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -444,6 +533,15 @@ export default function CreateInstancePage() {
           </div>
         </div>
       </div>
+
+      {/* VRM Library Modal */}
+      {showVrmLibrary && (
+        <VrmLibrary
+          onVrmSelect={handleVrmLibrarySelect}
+          onClose={() => setShowVrmLibrary(false)}
+          selectedUrl={formData.vrmUrl}
+        />
+      )}
     </div>
   );
 }

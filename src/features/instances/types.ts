@@ -5,6 +5,7 @@ export interface VRMModelConfig {
   url?: string;
   name: string;
   file?: File;
+  dataUrl?: string; // For persisting uploaded files as data URLs
 }
 
 export interface APIKeys {

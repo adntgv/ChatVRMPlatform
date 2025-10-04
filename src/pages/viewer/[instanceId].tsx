@@ -263,7 +263,11 @@ export default function ViewerPage() {
       </div>
 
       {/* VRM Viewer */}
-      <VrmViewer />
+      <VrmViewer
+        vrmUrl={instance.vrmModel.url}
+        vrmFile={instance.vrmModel.file}
+        dataUrl={instance.vrmModel.dataUrl}
+      />
 
       {/* Message Input */}
       <MessageInputContainer
@@ -422,8 +426,6 @@ export default function ViewerPage() {
         </div>
         </>
       )}
-
-      <GitHubLink />
     </div>
   );
 }

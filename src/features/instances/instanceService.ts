@@ -22,6 +22,16 @@ export class InstanceService {
     return `instance-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
+  // Convert File to data URL for storage
+  private async fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   // Load all instances from localStorage
   loadInstances(): InstancesState {
     if (typeof window === 'undefined') {
@@ -105,22 +115,46 @@ export class InstanceService {
     if (typeof window === 'undefined') return;
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(instances));
+      // Custom replacer to remove File objects and undefined values
+      const replacer = (key: string, value: any) => {
+        // Skip File objects
+        if (value instanceof File) {
+          return undefined;
+        }
+        return value;
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(instances, replacer));
     } catch (error) {
       console.error('Failed to save instances:', error);
     }
   }
 
   // Create a new instance
-  createInstance(data: Partial<Omit<Instance, 'id' | 'createdAt' | 'updatedAt'>>): Instance {
+  async createInstance(data: Partial<Omit<Instance, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Instance> {
     const instanceId = this.generateId();
+
+    // Handle VRM file conversion
+    let vrmModel = data.vrmModel || { name: 'Default VRM' };
+    if (vrmModel.file) {
+      try {
+        const dataUrl = await this.fileToDataUrl(vrmModel.file);
+        vrmModel = {
+          ...vrmModel,
+          dataUrl,
+          file: undefined // Don't store File object
+        };
+      } catch (error) {
+        console.error('Failed to convert VRM file to data URL:', error);
+      }
+    }
 
     const instance: Instance = {
       id: instanceId,
       name: data.name || 'New Character',
       description: data.description,
       apiKeys: data.apiKeys || {},
-      vrmModel: data.vrmModel || { name: 'Default VRM' },
+      vrmModel,
       voice: data.voice || DEFAULT_PARAM,
       personality: data.personality || {
         systemPrompt: SYSTEM_PROMPT,
@@ -141,15 +175,35 @@ export class InstanceService {
   }
 
   // Update an existing instance
-  updateInstance(id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>): Instance | null {
+  async updateInstance(id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>): Promise<Instance | null> {
     const state = this.loadInstances();
     const instance = state.instances[id];
 
     if (!instance) return null;
 
+    // Handle VRM file conversion if provided
+    let processedUpdates = { ...updates };
+    if (updates.vrmModel?.file) {
+      try {
+        const dataUrl = await this.fileToDataUrl(updates.vrmModel.file);
+        processedUpdates.vrmModel = {
+          ...updates.vrmModel,
+          dataUrl,
+          file: undefined // Don't store File object
+        };
+      } catch (error) {
+        console.error('Failed to convert VRM file to data URL:', error);
+        // Keep the original vrmModel without file
+        processedUpdates.vrmModel = {
+          ...updates.vrmModel,
+          file: undefined
+        };
+      }
+    }
+
     const updatedInstance: Instance = {
       ...instance,
-      ...updates,
+      ...processedUpdates,
       id,
       createdAt: instance.createdAt,
       updatedAt: Date.now()
@@ -287,6 +341,10 @@ export const INSTANCE_TEMPLATES: InstanceTemplate[] = [
         speakerX: 3,
         speakerY: 3,
         preset: 'cute'
+      },
+      vrmModel: {
+        name: 'Pikachu',
+        url: '/pikachu.vrm'
       }
     }
   },
@@ -304,6 +362,10 @@ export const INSTANCE_TEMPLATES: InstanceTemplate[] = [
         speakerX: -2,
         speakerY: -2,
         preset: 'mature'
+      },
+      vrmModel: {
+        name: 'Scientist',
+        url: '/scientist.vrm'
       }
     }
   },
@@ -321,6 +383,10 @@ export const INSTANCE_TEMPLATES: InstanceTemplate[] = [
         speakerX: 5,
         speakerY: 5,
         preset: 'energetic'
+      },
+      vrmModel: {
+        name: 'Rabbit',
+        url: '/rabbit.vrm'
       }
     }
   }

@@ -9,9 +9,9 @@ interface InstanceContextType {
   isLoading: boolean;
 
   // Instance operations
-  createInstance: (data: Partial<Omit<Instance, 'id' | 'createdAt' | 'updatedAt'>>) => Instance | null;
-  createFromTemplate: (templateId: string) => Instance | null;
-  updateInstance: (id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>) => void;
+  createInstance: (data: Partial<Omit<Instance, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<Instance | null>;
+  createFromTemplate: (templateId: string) => Promise<Instance | null>;
+  updateInstance: (id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>) => Promise<void>;
   deleteInstance: (id: string) => void;
   duplicateInstance: (id: string) => Instance | null;
 
@@ -46,8 +46,8 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Create a new instance
-  const createInstance = useCallback((data: Partial<Omit<Instance, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    const instance = instanceService.createInstance(data);
+  const createInstance = useCallback(async (data: Partial<Omit<Instance, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    const instance = await instanceService.createInstance(data);
     if (instance) {
       setState(prev => ({
         ...prev,
@@ -61,16 +61,16 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Create instance from template
-  const createFromTemplate = useCallback((templateId: string) => {
+  const createFromTemplate = useCallback(async (templateId: string) => {
     const template = INSTANCE_TEMPLATES.find(t => t.id === templateId);
     if (!template) return null;
 
-    return createInstance(template.config);
+    return await createInstance(template.config);
   }, [createInstance]);
 
   // Update an instance
-  const updateInstance = useCallback((id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>) => {
-    const updated = instanceService.updateInstance(id, updates);
+  const updateInstance = useCallback(async (id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>) => {
+    const updated = await instanceService.updateInstance(id, updates);
     if (updated) {
       setState(prev => ({
         ...prev,
