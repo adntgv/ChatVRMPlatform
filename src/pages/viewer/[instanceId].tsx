@@ -270,10 +270,7 @@ export default function ViewerPage() {
       />
 
       {/* Message Input */}
-      <MessageInputContainer
-        isChatProcessing={chatProcessing}
-        onChatProcessStart={handleSendChat}
-      />
+      <MessageInputContainer />
 
       {/* Assistant Message Display */}
       {assistantMessage && (

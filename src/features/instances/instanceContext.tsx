@@ -13,7 +13,7 @@ interface InstanceContextType {
   createFromTemplate: (templateId: string) => Promise<Instance | null>;
   updateInstance: (id: string, updates: Partial<Omit<Instance, 'id' | 'createdAt'>>) => Promise<void>;
   deleteInstance: (id: string) => void;
-  duplicateInstance: (id: string) => Instance | null;
+  duplicateInstance: (id: string) => Promise<Instance | null>;
 
   // Active instance operations
   setActiveInstance: (id: string | null) => void;
@@ -98,8 +98,8 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Duplicate an instance
-  const duplicateInstance = useCallback((id: string) => {
-    const duplicate = instanceService.duplicateInstance(id);
+  const duplicateInstance = useCallback(async (id: string) => {
+    const duplicate = await instanceService.duplicateInstance(id);
     if (duplicate) {
       setState(prev => ({
         ...prev,
@@ -164,7 +164,7 @@ export function InstanceProvider({ children }: { children: ReactNode }) {
   const importInstance = useCallback(async (file: File) => {
     try {
       const text = await file.text();
-      const imported = instanceService.importInstance(text);
+      const imported = await instanceService.importInstance(text);
 
       if (imported) {
         setState(prev => ({

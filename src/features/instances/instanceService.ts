@@ -233,13 +233,13 @@ export class InstanceService {
   }
 
   // Duplicate an instance
-  duplicateInstance(id: string): Instance | null {
+  async duplicateInstance(id: string): Promise<Instance | null> {
     const state = this.loadInstances();
     const original = state.instances[id];
 
     if (!original) return null;
 
-    const duplicate = this.createInstance({
+    const duplicate = await this.createInstance({
       ...original,
       name: `${original.name} (Copy)`,
       chatHistory: [] // Start with fresh chat history
@@ -289,7 +289,7 @@ export class InstanceService {
   }
 
   // Import instance from JSON
-  importInstance(jsonString: string, includeApiKeys: boolean = false): Instance | null {
+  async importInstance(jsonString: string, includeApiKeys: boolean = false): Promise<Instance | null> {
     try {
       const data = JSON.parse(jsonString);
 
@@ -299,7 +299,7 @@ export class InstanceService {
       }
 
       // Create new instance with imported data
-      const instance = this.createInstance({
+      const instance = await this.createInstance({
         ...data,
         name: `${data.name} (Imported)`,
         chatHistory: data.chatHistory || []

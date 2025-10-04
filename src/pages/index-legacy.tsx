@@ -194,25 +194,8 @@ export default function Home() {
         onChangeKoeiromapKey={setKoeiromapKey}
       />
       <VrmViewer />
-      <MessageInputContainer
-        isChatProcessing={chatProcessing}
-        onChatProcessStart={handleSendChat}
-      />
-      <Menu
-        openAiKey={openAiKey}
-        systemPrompt={systemPrompt}
-        chatLog={chatLog}
-        koeiroParam={koeiroParam}
-        assistantMessage={assistantMessage}
-        koeiromapKey={koeiromapKey}
-        onChangeAiKey={setOpenAiKey}
-        onChangeSystemPrompt={setSystemPrompt}
-        onChangeChatLog={handleChangeChatLog}
-        onChangeKoeiromapParam={setKoeiroParam}
-        handleClickResetChatLog={() => setChatLog([])}
-        handleClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
-        onChangeKoeiromapKey={setKoeiromapKey}
-      />
+      <MessageInputContainer />
+      <Menu />
       <GitHubLink />
     </div>
   );

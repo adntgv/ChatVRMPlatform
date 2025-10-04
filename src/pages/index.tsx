@@ -23,8 +23,8 @@ export default function HomePage() {
     router.push('/create');
   };
 
-  const handleUseTemplate = (templateId: string) => {
-    const instance = createFromTemplate(templateId);
+  const handleUseTemplate = async (templateId: string) => {
+    const instance = await createFromTemplate(templateId);
     if (instance) {
       router.push(`/viewer/${instance.id}`);
     }
@@ -214,8 +214,6 @@ export default function HomePage() {
           </div>
         )}
       </div>
-
-      <GitHubLink />
     </div>
   );
 }

@@ -43,8 +43,8 @@ export default function InstancesPage() {
     }
   };
 
-  const handleDuplicateInstance = (instance: Instance) => {
-    const duplicate = duplicateInstance(instance.id);
+  const handleDuplicateInstance = async (instance: Instance) => {
+    const duplicate = await duplicateInstance(instance.id);
     if (duplicate) {
       alert(`Created duplicate: ${duplicate.name}`);
     }
@@ -62,8 +62,8 @@ export default function InstancesPage() {
     event.target.value = '';
   };
 
-  const handleCreateFromTemplate = (templateId: string) => {
-    const instance = createFromTemplate(templateId);
+  const handleCreateFromTemplate = async (templateId: string) => {
+    const instance = await createFromTemplate(templateId);
     if (instance) {
       setShowTemplates(false);
       router.push(`/edit/${instance.id}`);

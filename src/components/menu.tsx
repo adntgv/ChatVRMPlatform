@@ -6,6 +6,8 @@ import { ViewerContext } from "@/features/vrmViewer/viewerContext";
 import { AssistantText } from "./assistantText";
 import { VrmUpload } from "./vrmUpload";
 import { VrmManager } from "./vrmManager";
+import { VrmLibrary } from "./vrmLibrary";
+import { VrmModelInfo } from "@/features/constants/vrmModels";
 import { useVrmPersistence } from "@/hooks/useVrmPersistence";
 import { useChatStore } from "@/store/chatStore";
 import { useConfigStore } from "@/store/configStore";
@@ -31,6 +33,7 @@ const MenuComponent = () => {
   const [showChatLog, setShowChatLog] = useState(false);
   const [showVrmUpload, setShowVrmUpload] = useState(false);
   const [showVrmManager, setShowVrmManager] = useState(false);
+  const [showVrmLibrary, setShowVrmLibrary] = useState(false);
   const [isVrmLoading, setIsVrmLoading] = useState(false);
   const { viewer } = useContext(ViewerContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +103,11 @@ const MenuComponent = () => {
     }
   }, [viewer]);
 
+  const handleVrmLibrarySelect = useCallback(async (url: string, modelInfo: VrmModelInfo) => {
+    await handleVrmLoad(url);
+    setShowVrmLibrary(false);
+  }, [handleVrmLoad]);
+
   const handleChangeVrmFile = useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
@@ -144,6 +152,12 @@ const MenuComponent = () => {
             label="VRM Manager"
             isProcessing={false}
             onClick={() => setShowVrmManager(true)}
+          />
+          <IconButton
+            iconName="24/Menu"
+            label="VRM Library"
+            isProcessing={false}
+            onClick={() => setShowVrmLibrary(true)}
           />
           <IconButton
             iconName="24/CommentFill"
@@ -204,6 +218,12 @@ const MenuComponent = () => {
           onClose={() => setShowVrmManager(false)}
         />
       )}
+      {showVrmLibrary && (
+        <VrmLibrary
+          onVrmSelect={handleVrmLibrarySelect}
+          onClose={() => setShowVrmLibrary(false)}
+        />
+      )}
       {showSettings && (
         <Settings
           openAiKey={openAiKey}
@@ -220,21 +240,6 @@ const MenuComponent = () => {
           onClickResetChatLog={clearChat}
           onClickResetSystemPrompt={() => setSystemPrompt(SYSTEM_PROMPT)}
           onChangeKoeiromapKey={handleChangeKoeiromapKey}
-          // Emotion controls
-          currentEmotion={emotionAnimationControls.currentEmotion}
-          onEmotionChange={emotionAnimationControls.onEmotionChange}
-          // Animation controls
-          animations={emotionAnimationControls.animations}
-          currentAnimation={emotionAnimationControls.currentAnimation}
-          isPlaying={emotionAnimationControls.isPlaying}
-          animationSpeed={emotionAnimationControls.animationSpeed}
-          loop={emotionAnimationControls.loop}
-          onAnimationUpload={emotionAnimationControls.onAnimationUpload}
-          onAnimationSelect={emotionAnimationControls.onAnimationSelect}
-          onAnimationPlay={emotionAnimationControls.onAnimationPlay}
-          onAnimationStop={emotionAnimationControls.onAnimationStop}
-          onSpeedChange={emotionAnimationControls.onSpeedChange}
-          onLoopToggle={emotionAnimationControls.onLoopToggle}
         />
       )}
       {!showChatLog && assistantMessage && (
