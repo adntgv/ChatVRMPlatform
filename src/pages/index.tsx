@@ -1,14 +1,34 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useInstances } from "@/features/instances/instanceContext";
 import { Meta } from "@/components/meta";
 import { GitHubLink } from "@/components/githubLink";
+import { analytics, usePageView } from "@/lib/analytics";
+import { INSTANCE_TEMPLATES } from "@/features/instances/instanceService";
 
 export default function HomePage() {
   const router = useRouter();
   const { instances, activeInstance, setActiveInstance, templates, createFromTemplate } = useInstances();
 
+  // Track landing page view
+  usePageView('landing');
+
   const instanceList = Object.values(instances);
+
+  const handleDemoClick = () => {
+    analytics.track('demo_cta_click', { source: 'landing_hero' });
+    router.push('/demo');
+  };
+
+  const handleBuildClick = () => {
+    analytics.track('wizard_start', { source: 'landing' });
+    router.push('/create');
+  };
+
+  const handleReserveClick = () => {
+    analytics.track('reserve_page_view', { source: 'landing' });
+    router.push('/reserve');
+  };
 
   const handleQuickStart = (instanceId: string) => {
     setActiveInstance(instanceId);
@@ -43,177 +63,171 @@ export default function HomePage() {
     <div className="font-M_PLUS_2 min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <Meta />
 
-      {/* Hero Section - Responsive */}
-      <div className="container mx-auto px-4 pt-8 sm:pt-12 md:pt-16 pb-6 sm:pb-8">
-        <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-3 sm:mb-4">
-            ChatVRM Platform
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 px-4 sm:px-0">
-            Create and interact with multiple 3D AI characters
-          </p>
+      {/* Banner for existing users */}
+      {instanceList.length > 0 && (
+        <div className="bg-blue-900 text-white py-3 px-4">
+          <div className="container mx-auto flex items-center justify-between">
+            <span className="text-sm">You have {instanceList.length} assistant{instanceList.length > 1 ? 's' : ''}</span>
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="px-4 py-2 bg-white text-blue-900 hover:bg-gray-100 rounded-lg font-bold text-sm transition-colors"
+            >
+              Go to Dashboard →
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Main Content - Responsive */}
-      <div className="container mx-auto px-4 pb-8 sm:pb-12 md:pb-16">
-        {instanceList.length === 0 ? (
-          // No instances - Show welcome screen
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-6 sm:p-8 md:p-12 text-center">
-              <div className="mb-6 sm:mb-8">
-                <div className="text-gray-300 mb-3 sm:mb-4">
-                  <svg className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                  </svg>
+      {/* LANDING PAGE - Always shown for validation */}
+      <>
+          {/* Hero Section */}
+          <div className="container mx-auto px-4 pt-12 md:pt-20 pb-16">
+            <div className="max-w-4xl mx-auto text-center">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                Your 3D AI Assistant.<br />
+                <span className="text-blue-600">Built in Minutes.</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Create custom VRM avatars that chat, answer questions, and engage your audience 24/7
+              </p>
+
+              {/* Primary CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                <button
+                  onClick={handleDemoClick}
+                  className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-lg shadow-lg transition-all transform hover:scale-105"
+                >
+                  Try Live Demo →
+                </button>
+                <button
+                  onClick={handleBuildClick}
+                  className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-lg font-bold rounded-lg shadow-lg transition-all transform hover:scale-105"
+                >
+                  Build My Own
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-500">No signup required for demo • Free to start</p>
+
+              {/* Value Props / Quick Stats */}
+              <div className="mt-8 flex flex-wrap justify-center gap-6 md:gap-8 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⚡</span>
+                  <span className="font-medium">5-min setup</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">
-                  Welcome to ChatVRM Platform
-                </h2>
-                <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-4 sm:px-0">
-                  Get started by creating your first AI character instance
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                <button
-                  onClick={handleCreateNew}
-                  className="p-4 sm:p-5 md:p-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg sm:rounded-xl transition-all transform hover:scale-105 touch-button"
-                >
-                  <div className="text-xl sm:text-2xl mb-1 sm:mb-2">✨</div>
-                  <div className="font-bold text-base sm:text-lg mb-1">Custom Instance</div>
-                  <div className="text-xs sm:text-sm opacity-90">Create from scratch</div>
-                </button>
-                <button
-                  onClick={handleManageInstances}
-                  className="p-4 sm:p-5 md:p-6 bg-purple-600 hover:bg-purple-700 text-white rounded-lg sm:rounded-xl transition-all transform hover:scale-105 touch-button"
-                >
-                  <div className="text-xl sm:text-2xl mb-1 sm:mb-2">📚</div>
-                  <div className="font-bold text-base sm:text-lg mb-1">Browse Templates</div>
-                  <div className="text-xs sm:text-sm opacity-90">Start with a template</div>
-                </button>
-              </div>
-
-              <div className="border-t pt-4 sm:pt-6">
-                <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">Quick Start Templates</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-                  {templates.slice(0, 3).map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => handleUseTemplate(template.id)}
-                      className="p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-lg text-left transition-colors touch-button"
-                    >
-                      <div className="font-medium text-xs sm:text-sm mb-1 text-gray-800">{template.name}</div>
-                      <div className="text-xs text-gray-600 line-clamp-2">{template.description}</div>
-                    </button>
-                  ))}
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🔒</span>
+                  <span className="font-medium">Your API keys</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🎨</span>
+                  <span className="font-medium">Fully customizable</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">💬</span>
+                  <span className="font-medium">Unlimited assistants</span>
                 </div>
               </div>
             </div>
           </div>
-        ) : (
-          // Has instances - Show quick access
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Your Instances</h2>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <button
-                    onClick={handleCreateNew}
-                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm sm:text-base touch-button transition-colors"
-                  >
-                    New Instance
-                  </button>
-                  <button
-                    onClick={handleManageInstances}
-                    className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm sm:text-base touch-button transition-colors"
-                  >
-                    Manage All
-                  </button>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                {instanceList.slice(0, 6).map((instance) => (
+          {/* Use Cases - Outcome Focused */}
+          <div className="bg-white py-16">
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+                Built for Real Results
+              </h2>
+              <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+                Choose a template or build your own custom assistant
+              </p>
+
+              <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {INSTANCE_TEMPLATES.slice(0, 3).map((template) => (
                   <div
-                    key={instance.id}
-                    className={`border rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer touch-target ${
-                      activeInstance?.id === instance.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                    }`}
-                    onClick={() => handleQuickStart(instance.id)}
+                    key={template.id}
+                    className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all"
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-sm sm:text-base text-gray-800 line-clamp-1">{instance.name}</h3>
-                      {activeInstance?.id === instance.id && (
-                        <span className="ml-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
-                          Active
-                        </span>
-                      )}
-                    </div>
-                    {instance.description && (
-                      <p className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{instance.description}</p>
-                    )}
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{instance.chatHistory.length} messages</span>
-                      <span className="capitalize">{instance.personality.language}</span>
-                    </div>
+                    <div className="text-5xl mb-4">{template.icon}</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {template.name}
+                    </h3>
+                    <p className="text-gray-600 mb-4 min-h-[60px]">
+                      {template.description}
+                    </p>
+                    <button
+                      onClick={handleDemoClick}
+                      className="text-blue-600 hover:text-blue-700 font-bold"
+                    >
+                      Try this demo →
+                    </button>
                   </div>
                 ))}
               </div>
 
-              {instanceList.length > 6 && (
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={handleManageInstances}
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    View all {instanceList.length} instances →
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Features Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white rounded-xl shadow p-6 text-center">
-                <div className="text-3xl mb-3">🎭</div>
-                <h3 className="font-bold mb-2">Multiple Characters</h3>
-                <p className="text-sm text-gray-600">
-                  Create unlimited character instances with unique personalities
-                </p>
+              <div className="text-center mt-12">
+                <button
+                  onClick={handleBuildClick}
+                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-lg font-bold rounded-lg shadow-lg transition-all"
+                >
+                  Create Custom Assistant
+                </button>
               </div>
-              <div className="bg-white rounded-xl shadow p-6 text-center">
-                <div className="text-3xl mb-3">🔊</div>
-                <h3 className="font-bold mb-2">Voice Synthesis</h3>
-                <p className="text-sm text-gray-600">
-                  Customize voice parameters for each character
-                </p>
-              </div>
-              <div className="bg-white rounded-xl shadow p-6 text-center">
-                <div className="text-3xl mb-3">💾</div>
-                <h3 className="font-bold mb-2">Save & Share</h3>
-                <p className="text-sm text-gray-600">
-                  Export and import character configurations easily
-                </p>
-              </div>
-            </div>
-
-            {/* Classic Mode Access */}
-            <div className="mt-8 pt-6 border-t">
-              <button
-                onClick={() => router.push('/classic')}
-                className="w-full p-4 bg-gray-800 hover:bg-gray-900 text-white rounded-xl transition-colors flex items-center justify-center gap-3"
-              >
-                <span className="text-2xl">⚡</span>
-                <div className="text-left">
-                  <div className="font-bold">Classic Mode</div>
-                  <div className="text-sm opacity-90">Single character admin interface</div>
-                </div>
-              </button>
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Social Proof / Features */}
+          <div className="container mx-auto px-4 py-16">
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className="text-center p-6 bg-white rounded-xl shadow">
+                <div className="text-4xl mb-3">⚡</div>
+                <h3 className="font-bold text-lg mb-2">5-Minute Setup</h3>
+                <p className="text-gray-600 text-sm">
+                  Go from idea to live assistant in minutes, not days
+                </p>
+              </div>
+              <div className="text-center p-6 bg-white rounded-xl shadow">
+                <div className="text-4xl mb-3">🎨</div>
+                <h3 className="font-bold text-lg mb-2">Fully Customizable</h3>
+                <p className="text-gray-600 text-sm">
+                  Choose VRM models, voices, and personalities
+                </p>
+              </div>
+              <div className="text-center p-6 bg-white rounded-xl shadow">
+                <div className="text-4xl mb-3">🔒</div>
+                <h3 className="font-bold text-lg mb-2">Your Data, Your Keys</h3>
+                <p className="text-gray-600 text-sm">
+                  Use your own API keys, fully private and secure
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Final CTA */}
+          <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white py-16">
+            <div className="container mx-auto px-4 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Ready to Get Started?
+              </h2>
+              <p className="text-xl mb-8 opacity-90">
+                Try a demo now or let us build your assistant for you
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={handleDemoClick}
+                  className="px-8 py-4 bg-white text-blue-900 hover:bg-gray-100 text-lg font-bold rounded-lg shadow-lg transition-all"
+                >
+                  Try Demo Free
+                </button>
+                <button
+                  onClick={handleReserveClick}
+                  className="px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-lg font-bold rounded-lg shadow-lg transition-all"
+                >
+                  We'll Build It For You - $49
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
     </div>
   );
 }

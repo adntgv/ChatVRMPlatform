@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useInstances } from "@/features/instances/instanceContext";
 import { Meta } from "@/components/meta";
@@ -11,13 +11,23 @@ import {
 } from "@/features/constants/koeiroParam";
 import { VrmLibrary } from "@/components/vrmLibrary";
 import { VrmModelInfo } from "@/features/constants/vrmModels";
+import { analytics, usePageView } from "@/lib/analytics";
+
+const STEP_NAMES = ['basic', 'api', 'model', 'voice', 'personality'];
 
 export default function CreateInstancePage() {
   const router = useRouter();
   const { createInstance } = useInstances();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Track wizard start
+  usePageView('create');
+  useEffect(() => {
+    analytics.track('wizard_start', { source: 'create_page' });
+  }, []);
+
   const [step, setStep] = useState(1);
+  const [previousStep, setPreviousStep] = useState(1);
   const [vrmTab, setVrmTab] = useState<'library' | 'upload'>('library');
   const [showVrmLibrary, setShowVrmLibrary] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,12 +56,46 @@ export default function CreateInstancePage() {
   });
 
   const handleNext = () => {
-    if (step < 5) setStep(step + 1);
+    if (step < 5) {
+      // Track step completion
+      analytics.track('wizard_step_complete', {
+        step: step,
+        stepName: STEP_NAMES[step - 1],
+        formData: {
+          hasName: !!formData.name,
+          hasApiKeys: !!formData.openAiKey || !!formData.koeiromapKey,
+          hasVrmModel: !!formData.vrmUrl || !!formData.vrmFile,
+          voicePreset: formData.voicePreset,
+        }
+      });
+
+      setPreviousStep(step);
+      setStep(step + 1);
+    }
   };
 
   const handlePrev = () => {
-    if (step > 1) setStep(step - 1);
+    if (step > 1) {
+      setPreviousStep(step);
+      setStep(step - 1);
+    }
   };
+
+  // Track abandonments (when user navigates away)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (step < 5) {
+        analytics.track('wizard_step_abandon', {
+          step: step,
+          stepName: STEP_NAMES[step - 1],
+          progress: (step / 5) * 100
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [step]);
 
   const handleVoicePresetChange = (preset: string) => {
     let params = PRESET_A;
@@ -100,6 +144,13 @@ export default function CreateInstancePage() {
   };
 
   const handleSubmit = async () => {
+    // Track final step completion
+    analytics.track('wizard_step_complete', {
+      step: 5,
+      stepName: 'personality',
+      complete: true
+    });
+
     const instance = await createInstance({
       name: formData.name || 'New Character',
       description: formData.description,
@@ -124,6 +175,15 @@ export default function CreateInstancePage() {
     });
 
     if (instance) {
+      // Track successful instance creation
+      analytics.track('instance_created', {
+        source: 'wizard',
+        hasApiKeys: !!formData.openAiKey || !!formData.koeiromapKey,
+        hasCustomVrm: !!formData.vrmFile,
+        hasCustomPrompt: !formData.useDefaultPrompt,
+        language: formData.language,
+      });
+
       router.push('/instances');
     }
   };
