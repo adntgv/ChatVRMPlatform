@@ -210,13 +210,13 @@ export default function CreateInstancePage() {
       <Meta />
 
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">Create New Instance</h1>
+      <div className="bg-white shadow-sm border-b safe-top">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">Create New Instance</h1>
             <button
               onClick={() => router.push('/instances')}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              className="touch-target px-3 sm:px-4 py-2 bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white text-sm sm:text-base rounded-lg transition-colors whitespace-nowrap"
             >
               Cancel
             </button>
@@ -225,12 +225,12 @@ export default function CreateInstancePage() {
       </div>
 
       {/* Progress Bar */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="flex items-center justify-between max-w-3xl mx-auto">
           {[1, 2, 3, 4, 5].map((s) => (
             <div key={s} className="flex items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-base font-bold ${
                   s <= step ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-600'
                 }`}
               >
@@ -238,7 +238,7 @@ export default function CreateInstancePage() {
               </div>
               {s < 5 && (
                 <div
-                  className={`w-20 h-1 ${
+                  className={`w-8 sm:w-12 md:w-20 h-1 ${
                     s < step ? 'bg-blue-500' : 'bg-gray-300'
                   }`}
                 />
@@ -249,12 +249,12 @@ export default function CreateInstancePage() {
       </div>
 
       {/* Form Content */}
-      <div className="container mx-auto px-4 pb-8">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-8">
+      <div className="container mx-auto px-4 sm:px-6 pb-8 safe-bottom">
+        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-5 sm:p-8">
           {/* Step 1: Basic Info */}
           {step === 1 && (
             <div>
-              <h2 className="text-xl font-bold mb-6">Basic Information</h2>
+              <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Basic Information</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Instance Name *</label>
@@ -262,7 +262,7 @@ export default function CreateInstancePage() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     placeholder="e.g., Friendly Assistant"
                   />
                 </div>
@@ -271,7 +271,7 @@ export default function CreateInstancePage() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     rows={3}
                     placeholder="Brief description of this character..."
                   />
@@ -281,7 +281,7 @@ export default function CreateInstancePage() {
                   <select
                     value={formData.language}
                     onChange={(e) => setFormData({ ...formData, language: e.target.value as 'en' | 'ja' })}
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-base touch-target"
                   >
                     <option value="en">English</option>
                     <option value="ja">Japanese</option>
@@ -553,14 +553,14 @@ export default function CreateInstancePage() {
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8">
+          <div className="flex justify-between gap-3 mt-6 sm:mt-8">
             <button
               onClick={handlePrev}
               disabled={step === 1}
-              className={`px-6 py-2 rounded-lg ${
+              className={`touch-target px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium ${
                 step === 1
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gray-600 hover:bg-gray-700 text-white'
+                  : 'bg-gray-600 hover:bg-gray-700 active:bg-gray-800 text-white'
               }`}
             >
               Previous
@@ -569,9 +569,9 @@ export default function CreateInstancePage() {
               <button
                 onClick={handleNext}
                 disabled={!isStepValid()}
-                className={`px-6 py-2 rounded-lg ${
+                className={`touch-target px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium ${
                   isStepValid()
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
@@ -581,9 +581,9 @@ export default function CreateInstancePage() {
               <button
                 onClick={handleSubmit}
                 disabled={!isStepValid()}
-                className={`px-6 py-2 rounded-lg ${
+                className={`touch-target px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium ${
                   isStepValid()
-                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    ? 'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
