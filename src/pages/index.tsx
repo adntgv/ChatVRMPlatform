@@ -222,7 +222,7 @@ export default function HomePage() {
                   onClick={handleReserveClick}
                   className="px-8 py-4 bg-yellow-400 hover:bg-yellow-300 text-gray-900 text-lg font-bold rounded-lg shadow-lg transition-all"
                 >
-                  We'll Build It For You - $49
+                  We&apos;ll Build It For You - $49
                 </button>
               </div>
             </div>

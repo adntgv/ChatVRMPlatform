@@ -56,15 +56,15 @@ export default function PilotInquiryPage() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-purple-600 font-bold">2.</span>
-                <span>We'll schedule a call to discuss your pilot program</span>
+                <span>We&apos;ll schedule a call to discuss your pilot program</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-purple-600 font-bold">3.</span>
-                <span>We'll create a custom proposal and timeline</span>
+                <span>We&apos;ll create a custom proposal and timeline</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-purple-600 font-bold">4.</span>
-                <span>If approved, we'll kick off your pilot implementation</span>
+                <span>If approved, we&apos;ll kick off your pilot implementation</span>
               </li>
             </ul>
           </div>
@@ -116,7 +116,7 @@ export default function PilotInquiryPage() {
             {/* Info Panel */}
             <div className="space-y-6">
               <div className="bg-white rounded-2xl shadow-xl p-8">
-                <h2 className="text-2xl font-bold mb-6">What's a Pilot Program?</h2>
+                <h2 className="text-2xl font-bold mb-6">What&apos;s a Pilot Program?</h2>
                 <p className="text-gray-600 mb-6">
                   We work with your team to deploy custom AI assistants tailored to your specific needs, with hands-on support throughout the process.
                 </p>
@@ -284,7 +284,7 @@ export default function PilotInquiryPage() {
                 </button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  We'll review your inquiry and respond within 1 business day
+                  We&apos;ll review your inquiry and respond within 1 business day
                 </p>
               </form>
             </div>

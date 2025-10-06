@@ -314,7 +314,7 @@ export default function DemoPage() {
                   onClick={handleGetStarted}
                   className="flex-1 px-3 py-2 bg-yellow-400 text-gray-900 rounded font-bold hover:bg-yellow-300 transition-colors"
                 >
-                  We'll Build It
+                  We&apos;ll Build It
                 </button>
               </div>
             </div>

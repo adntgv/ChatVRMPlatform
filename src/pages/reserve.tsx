@@ -52,7 +52,7 @@ export default function ReservePage() {
             Reservation Confirmed!
           </h1>
           <p className="text-xl text-gray-600 mb-6">
-            Thank you for reserving your spot. We'll contact you within 24 hours to schedule your setup call.
+            Thank you for reserving your spot. We&apos;ll contact you within 24 hours to schedule your setup call.
           </p>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
@@ -60,7 +60,7 @@ export default function ReservePage() {
             <ul className="text-left space-y-3 text-gray-700">
               <li className="flex items-start gap-3">
                 <span className="text-blue-600 font-bold">1.</span>
-                <span>You'll receive a confirmation email at <strong>{formData.email}</strong></span>
+                <span>You&apos;ll receive a confirmation email at <strong>{formData.email}</strong></span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-blue-600 font-bold">2.</span>
@@ -68,11 +68,11 @@ export default function ReservePage() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-blue-600 font-bold">3.</span>
-                <span>We'll build your custom assistant based on your requirements</span>
+                <span>We&apos;ll build your custom assistant based on your requirements</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-blue-600 font-bold">4.</span>
-                <span>You'll receive your fully configured assistant ready to use</span>
+                <span>You&apos;ll receive your fully configured assistant ready to use</span>
               </li>
             </ul>
           </div>
@@ -113,7 +113,7 @@ export default function ReservePage() {
             Reserve Your Custom Assistant
           </h1>
           <p className="text-lg opacity-90">
-            We'll build it for you — 1-hour setup call included
+            We&apos;ll build it for you — 1-hour setup call included
           </p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function ReservePage() {
               </div>
 
               <div className="space-y-4 mb-8">
-                <h3 className="font-bold text-lg mb-4">What's included:</h3>
+                <h3 className="font-bold text-lg mb-4">What&apos;s included:</h3>
                 <div className="flex items-start gap-3">
                   <span className="text-green-600 text-xl">✓</span>
                   <span className="text-gray-700">1-hour personalized setup call</span>
@@ -281,7 +281,7 @@ export default function ReservePage() {
                 <div className="text-3xl mb-2">💯</div>
                 <h3 className="font-bold mb-2">Satisfaction Guaranteed</h3>
                 <p className="text-sm text-gray-600">
-                  Full refund if we can't meet your needs
+                  Full refund if we can&apos;t meet your needs
                 </p>
               </div>
             </div>
