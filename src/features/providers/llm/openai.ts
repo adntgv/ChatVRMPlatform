@@ -29,7 +29,7 @@ export class OpenAIProvider implements LLMProvider {
     try {
       const startTime = performance.now();
       const { data } = await openai.createChatCompletion({
-        model: options?.model || "gpt-4",
+        model: options?.model || "gpt-5-nano",
         messages: messages,
         temperature: options?.temperature,
         max_tokens: options?.maxTokens,
@@ -80,7 +80,7 @@ export class OpenAIProvider implements LLMProvider {
       headers: headers,
       method: "POST",
       body: JSON.stringify({
-        model: options?.model || "gpt-4",
+        model: options?.model || "gpt-5-nano",
         messages: messages,
         stream: true,
         max_tokens: options?.maxTokens || 200,
