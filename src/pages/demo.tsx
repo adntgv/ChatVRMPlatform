@@ -35,7 +35,8 @@ export default function DemoPage() {
 
   // Use demo API keys (you'll need to set these in env)
   const DEMO_OPENAI_KEY = process.env.NEXT_PUBLIC_DEMO_OPENAI_KEY || '';
-  const DEMO_KOEIROMAP_KEY = process.env.NEXT_PUBLIC_DEMO_KOEIROMAP_KEY || '';
+  const DEMO_ELEVENLABS_KEY = process.env.NEXT_PUBLIC_DEMO_ELEVENLABS_KEY || 'sk_3d546d3031ae7e09245ada2ca396f0f418d6cfb101772c21';
+  const DEMO_VOICE_ID = 'pNInz6obpgDQGcFmaJgB'; // Adam voice
 
   const handleTemplateSelect = (templateId: string) => {
     const template = DEMO_TEMPLATES.find(t => t.id === templateId);
@@ -53,13 +54,17 @@ export default function DemoPage() {
       onStart?: () => void,
       onEnd?: () => void
     ) => {
-      if (!DEMO_KOEIROMAP_KEY) {
-        console.warn("Demo Koeiromap API key not configured");
+      if (!DEMO_ELEVENLABS_KEY) {
+        console.warn("Demo ElevenLabs API key not configured");
         return;
       }
-      speakCharacter(screenplay, viewer, DEMO_KOEIROMAP_KEY, onStart, onEnd);
+      // Use ElevenLabs for demo
+      speakCharacter(screenplay, viewer, DEMO_ELEVENLABS_KEY, onStart, onEnd, {
+        ttsProvider: 'elevenlabs',
+        voice: { voiceId: DEMO_VOICE_ID }
+      });
     },
-    [viewer]
+    [viewer, DEMO_ELEVENLABS_KEY, DEMO_VOICE_ID]
   );
 
   const handleSendChat = useCallback(

@@ -5,6 +5,7 @@ import { Viewer } from "../vrmViewer/viewer";
 import { Screenplay } from "./messages";
 import { Talk } from "./messages";
 import { AppError, ErrorType, ErrorSeverity, errorHandler } from "@/lib/errorHandler";
+import { Instance } from "../instances/types";
 
 const createSpeakCharacter = () => {
   let lastTime = 0;
@@ -16,7 +17,8 @@ const createSpeakCharacter = () => {
     viewer: Viewer,
     koeiroApiKey: string,
     onStart?: () => void,
-    onComplete?: () => void
+    onComplete?: () => void,
+    instanceConfig?: Partial<Instance>
   ) => {
     const fetchPromise = prevFetchPromise.then(async () => {
       const now = Date.now();
@@ -24,7 +26,7 @@ const createSpeakCharacter = () => {
         await wait(config.limits.speechSynthesisRateLimitMs - (now - lastTime));
       }
 
-      const buffer = await fetchAudio(screenplay.talk, koeiroApiKey).catch(
+      const buffer = await fetchAudio(screenplay.talk, koeiroApiKey, instanceConfig).catch(
         (error) => {
           // Error is already handled in fetchAudio
           console.error('Failed to fetch audio:', error);
@@ -55,7 +57,8 @@ export const speakCharacter = createSpeakCharacter();
 
 export const fetchAudio = async (
   talk: Talk,
-  apiKey: string
+  apiKey: string,
+  instanceConfig?: Partial<Instance>
 ): Promise<ArrayBuffer> => {
   try {
     const ttsVoice = await synthesizeVoiceApi(
@@ -63,7 +66,8 @@ export const fetchAudio = async (
       talk.speakerX,
       talk.speakerY,
       talk.style,
-      apiKey
+      apiKey,
+      instanceConfig as Instance
     );
     const url = ttsVoice.audio;
 

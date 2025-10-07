@@ -11,6 +11,7 @@ export interface VRMModelConfig {
 export interface APIKeys {
   openAI?: string;
   koeiromap?: string;
+  elevenlabs?: string;
 }
 
 export interface ThemeConfig {
@@ -27,7 +28,17 @@ export interface Instance {
   vrmModel: VRMModelConfig;
   voice: KoeiroParam & {
     preset?: string;
+    // ElevenLabs-specific voice settings
+    voiceId?: string;
+    elevenlabsVoiceSettings?: {
+      stability?: number;
+      similarity_boost?: number;
+      style?: number;
+      use_speaker_boost?: boolean;
+    };
   };
+  // TTS provider selection
+  ttsProvider?: 'koeiromap' | 'elevenlabs';
   personality: {
     systemPrompt: string;
     language: 'en' | 'ja';

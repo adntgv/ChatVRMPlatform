@@ -1,5 +1,6 @@
 import { TTSProvider, TTSProviderConfig } from "./types";
 import { KoeiromapProvider } from "./koeiromap";
+import { ElevenLabsProvider } from "./elevenlabs";
 
 /**
  * Factory for creating TTS provider instances
@@ -10,6 +11,7 @@ export class TTSProviderFactory {
   static {
     // Register default providers
     this.registerProvider('koeiromap', new KoeiromapProvider());
+    this.registerProvider('elevenlabs', new ElevenLabsProvider());
   }
 
   /**
@@ -43,3 +45,4 @@ export class TTSProviderFactory {
 // Export types and providers
 export * from "./types";
 export { KoeiromapProvider } from "./koeiromap";
+export { ElevenLabsProvider } from "./elevenlabs";

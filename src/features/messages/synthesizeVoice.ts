@@ -2,6 +2,7 @@ import { reduceTalkStyle } from "@/utils/reduceTalkStyle";
 import { koeiromapV0 } from "../koeiromap/koeiromap";
 import { TalkStyle } from "../messages/messages";
 import { AppError, ErrorType, ErrorSeverity, errorHandler, handleApiError } from "@/lib/errorHandler";
+import { Instance } from "../instances/types";
 
 export async function synthesizeVoice(
   message: string,
@@ -63,21 +64,38 @@ export async function synthesizeVoiceApi(
   speakerX: number,
   speakerY: number,
   style: TalkStyle,
-  apiKey: string
+  apiKey: string,
+  instance?: Instance
 ) {
   try {
-    // Free向けに感情を制限する
-    const reducedStyle = reduceTalkStyle(style);
+    // Determine which TTS provider to use
+    const ttsProvider = instance?.ttsProvider || 'koeiromap';
 
-    const body = {
-      message: message,
-      speakerX: speakerX,
-      speakerY: speakerY,
-      style: reducedStyle,
-      apiKey: apiKey,
-    };
+    let endpoint = "/api/tts";
+    let body: any;
 
-    const res = await fetch("/api/tts", {
+    if (ttsProvider === 'elevenlabs') {
+      // Use ElevenLabs API
+      endpoint = "/api/elevenlabs-tts";
+      body = {
+        message: message,
+        voiceId: instance?.voice?.voiceId,
+        apiKey: instance?.apiKeys?.elevenlabs || apiKey,
+        voiceSettings: instance?.voice?.elevenlabsVoiceSettings,
+      };
+    } else {
+      // Use Koeiromap API (default)
+      const reducedStyle = reduceTalkStyle(style);
+      body = {
+        message: message,
+        speakerX: speakerX,
+        speakerY: speakerY,
+        style: reducedStyle,
+        apiKey: apiKey,
+      };
+    }
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

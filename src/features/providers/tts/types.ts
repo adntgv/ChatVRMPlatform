@@ -59,7 +59,17 @@ export interface TTSResponse {
  * Provider configuration for instance-specific settings
  */
 export interface TTSProviderConfig {
-  provider: 'koeiromap' | 'google' | 'azure' | 'elevenlabs' | 'openai' | 'custom';
+  provider: 'koeiromap' | 'elevenlabs' | 'google' | 'azure' | 'openai' | 'custom';
   apiKey?: string;
   defaultOptions?: TTSOptions;
+}
+
+/**
+ * ElevenLabs-specific voice settings
+ */
+export interface ElevenLabsVoiceSettings {
+  stability?: number; // 0-1, controls consistency
+  similarity_boost?: number; // 0-1, controls how similar to the original voice
+  style?: number; // 0-1, controls style exaggeration
+  use_speaker_boost?: boolean; // Boost speaker similarity
 }
