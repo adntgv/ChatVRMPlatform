@@ -206,71 +206,64 @@ export default function DemoPage() {
   };
 
   return (
-    <div className="font-M_PLUS_2 h-screen flex flex-col">
+    <div className="font-M_PLUS_2 h-screen grid grid-rows-[auto_auto_1fr] overflow-hidden">
       <Meta />
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-blue-900 text-white p-4 shadow-lg">
-        <div className="container mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Try Live Demo</h1>
-            <p className="text-sm opacity-90">No signup required • {rateLimit.remaining}/{rateLimit.total} messages left</p>
+      <div className="bg-gradient-to-r from-purple-900 to-blue-900 text-white px-3 py-2 shadow-lg">
+        <div className="container mx-auto flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-lg font-bold">Try Live Demo</h1>
+            <p className="text-xs opacity-90 hidden sm:block">{rateLimit.remaining}/{rateLimit.total} messages left</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2 shrink-0">
             <button
               onClick={() => router.push('/')}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+              className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm bg-white/20 hover:bg-white/30 rounded transition-colors"
             >
               ← Back
             </button>
             <button
               onClick={handleBuildOwn}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-bold transition-colors"
+              className="px-2 sm:px-3 py-1 sm:py-2 text-xs sm:text-sm bg-green-600 hover:bg-green-700 rounded font-bold transition-colors"
             >
-              Build My Own
+              Build Own
             </button>
           </div>
         </div>
       </div>
 
       {/* Template Selector */}
-      <div className="bg-white border-b shadow-sm p-4">
-        <div className="container mx-auto">
-          <p className="text-sm text-gray-600 mb-3">Choose a use case to try:</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="bg-white border-b shadow-sm px-3 py-2">
+        <div className="container mx-auto flex items-center gap-2">
+          <label htmlFor="template-select" className="text-xs text-gray-600 shrink-0">
+            Use case:
+          </label>
+          <select
+            id="template-select"
+            value={selectedTemplate.id}
+            onChange={(e) => handleTemplateSelect(e.target.value)}
+            className="flex-1 px-2 py-1.5 text-xs sm:text-sm border border-gray-300 rounded bg-white hover:border-blue-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          >
             {DEMO_TEMPLATES.map((template) => (
-              <button
-                key={template.id}
-                onClick={() => handleTemplateSelect(template.id)}
-                className={`p-4 rounded-lg border-2 text-left transition-all ${
-                  selectedTemplate.id === template.id
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-3xl">{template.icon}</span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 mb-1">{template.name}</h3>
-                    <p className="text-sm text-gray-600">{template.description}</p>
-                  </div>
-                </div>
-              </button>
+              <option key={template.id} value={template.id}>
+                {template.icon} {template.name}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
       </div>
 
-      {/* Main Demo Area */}
-      <div className="flex-1 relative">
-        {/* VRM Viewer */}
+      {/* Main Demo Area - Grid row with 1fr takes all remaining space */}
+      <div className="relative overflow-hidden h-full w-full">
+        {/* VRM Viewer - Fills the parent container */}
         <VrmViewer
           vrmUrl={selectedTemplate.config.vrmModel?.url}
           vrmFile={undefined}
           dataUrl={undefined}
         />
 
-        {/* Message Input */}
+        {/* Message Input - Positioned at bottom of this container */}
         <MessageInputContainer />
 
         {/* Assistant Message Display */}
@@ -282,16 +275,16 @@ export default function DemoPage() {
 
         {/* Usage Warning */}
         {rateLimit.percentage > 70 && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
-            <div className="bg-yellow-100 border-2 border-yellow-400 text-yellow-800 px-6 py-3 rounded-lg shadow-lg">
-              <p className="font-bold">
-                {rateLimit.remaining} messages remaining in demo
+          <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20 max-w-[90%] sm:max-w-none">
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-3 py-2 rounded shadow-lg">
+              <p className="font-bold text-xs sm:text-sm">
+                {rateLimit.remaining} messages left
               </p>
               <button
                 onClick={handleBuildOwn}
-                className="mt-2 text-sm underline hover:no-underline"
+                className="text-xs underline hover:no-underline"
               >
-                Create your own assistant to continue →
+                Create own assistant →
               </button>
             </div>
           </div>
@@ -299,22 +292,22 @@ export default function DemoPage() {
 
         {/* CTA Banner after 3+ messages */}
         {chatLog.length >= 3 && (
-          <div className="absolute top-4 right-4 z-20 max-w-sm">
-            <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-4 rounded-lg shadow-xl">
-              <h3 className="font-bold mb-2">Like what you see?</h3>
-              <p className="text-sm mb-3">Create unlimited assistants with your own API keys</p>
-              <div className="flex gap-2">
+          <div className="absolute top-2 right-2 z-20 max-w-[90%] sm:max-w-xs">
+            <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-2 sm:p-3 rounded shadow-xl">
+              <h3 className="font-bold text-xs sm:text-sm mb-1">Like what you see?</h3>
+              <p className="text-xs mb-2 hidden sm:block">Create unlimited assistants</p>
+              <div className="flex gap-1 sm:gap-2">
                 <button
                   onClick={handleBuildOwn}
-                  className="flex-1 px-3 py-2 bg-white text-green-600 rounded font-bold hover:bg-gray-100 transition-colors"
+                  className="flex-1 px-2 py-1 text-xs bg-white text-green-600 rounded font-bold hover:bg-gray-100 transition-colors"
                 >
-                  Build My Own
+                  Build Own
                 </button>
                 <button
                   onClick={handleGetStarted}
-                  className="flex-1 px-3 py-2 bg-yellow-400 text-gray-900 rounded font-bold hover:bg-yellow-300 transition-colors"
+                  className="flex-1 px-2 py-1 text-xs bg-yellow-400 text-gray-900 rounded font-bold hover:bg-yellow-300 transition-colors"
                 >
-                  We&apos;ll Build It
+                  Build For Me
                 </button>
               </div>
             </div>

@@ -19,9 +19,9 @@ export const MessageInput = ({
   onClickSendButton,
 }: Props) => {
   return (
-    <div className="absolute bottom-0 z-20 w-screen safe-bottom">
+    <div className="absolute bottom-0 left-0 right-0 z-20 safe-bottom">
       <div className="bg-base text-black">
-        <div className="mx-auto max-w-4xl p-3 sm:p-4 md:p-16">
+        <div className="mx-auto max-w-4xl px-3 py-2 sm:px-4 sm:py-3 md:px-16 md:py-4">
           <div className="grid grid-flow-col gap-2 sm:gap-[8px] grid-cols-[min-content_1fr_min-content]">
             <IconButton
               iconName="24/Microphone"

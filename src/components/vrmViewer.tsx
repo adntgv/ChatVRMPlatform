@@ -1,4 +1,4 @@
-import { useContext, useCallback, useEffect } from "react";
+import { useContext, useCallback, useEffect, useRef } from "react";
 import { ViewerContext } from "../features/vrmViewer/viewerContext";
 import { buildUrl } from "@/utils/buildUrl";
 import { errorHandler } from "@/lib/errorHandler";
@@ -12,6 +12,7 @@ interface VrmViewerProps {
 
 export default function VrmViewer({ vrmUrl, vrmFile, dataUrl }: VrmViewerProps) {
   const { viewer } = useContext(ViewerContext);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Load VRM file when it changes
   useEffect(() => {
@@ -121,9 +122,27 @@ export default function VrmViewer({ vrmUrl, vrmFile, dataUrl }: VrmViewerProps) 
     [viewer, vrmUrl, vrmFile, dataUrl]
   );
 
+  // Force viewer to resize when container dimensions change
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      // Delay to ensure layout is complete
+      requestAnimationFrame(() => {
+        viewer.resize();
+      });
+    });
+
+    resizeObserver.observe(containerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [viewer]);
+
   return (
-    <div className={"absolute top-0 left-0 w-screen h-[100svh] -z-10"}>
-      <canvas ref={canvasRef} className={"h-full w-full"}></canvas>
+    <div ref={containerRef} className="absolute inset-0 -z-10">
+      <canvas ref={canvasRef} className="h-full w-full"></canvas>
     </div>
   );
 }
