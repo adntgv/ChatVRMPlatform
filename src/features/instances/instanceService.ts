@@ -335,6 +335,11 @@ export const INSTANCE_TEMPLATES: InstanceTemplate[] = [
     config: {
       name: 'VTuber Co-host',
       description: 'Your 24/7 streaming companion that keeps viewers engaged',
+      ttsProvider: 'elevenlabs',
+      apiKeys: {
+        openAI: process.env.NEXT_PUBLIC_DEMO_OPENAI_KEY || '',
+        elevenlabs: process.env.NEXT_PUBLIC_DEMO_ELEVENLABS_KEY || ''
+      },
       personality: {
         systemPrompt: `You are an energetic VTuber co-host. Your role is to:
 - Keep chat engaged with fun questions and reactions
@@ -348,9 +353,13 @@ When viewers ask about the stream, you have access to: schedule (Mon/Wed/Fri 7PM
         language: 'en'
       },
       voice: {
-        speakerX: 4,
-        speakerY: 4,
-        preset: 'energetic'
+        voiceId: 'EXAVITQu4vr4xnSDxMaL', // Bella - female, soft, energetic
+        elevenlabsVoiceSettings: {
+          stability: 0.4,
+          similarity_boost: 0.75,
+          style: 0.3,
+          use_speaker_boost: true
+        }
       },
       vrmModel: {
         name: 'Pikachu',
@@ -366,6 +375,11 @@ When viewers ask about the stream, you have access to: schedule (Mon/Wed/Fri 7PM
     config: {
       name: 'Course Tutor',
       description: 'Your personal teaching assistant available 24/7',
+      ttsProvider: 'elevenlabs',
+      apiKeys: {
+        openAI: process.env.NEXT_PUBLIC_DEMO_OPENAI_KEY || '',
+        elevenlabs: process.env.NEXT_PUBLIC_DEMO_ELEVENLABS_KEY || ''
+      },
       personality: {
         systemPrompt: `You are an expert course tutor and teaching assistant. Your responsibilities:
 - Explain complex concepts in simple, clear language
@@ -380,9 +394,13 @@ You specialize in breaking down difficult topics into manageable pieces and help
         language: 'en'
       },
       voice: {
-        speakerX: 1,
-        speakerY: 1,
-        preset: 'cool'
+        voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel - female, calm, clear
+        elevenlabsVoiceSettings: {
+          stability: 0.6,
+          similarity_boost: 0.8,
+          style: 0.1,
+          use_speaker_boost: true
+        }
       },
       vrmModel: {
         name: 'Scientist',
@@ -398,6 +416,11 @@ You specialize in breaking down difficult topics into manageable pieces and help
     config: {
       name: 'Website Greeter',
       description: 'Your professional website assistant that converts visitors',
+      ttsProvider: 'elevenlabs',
+      apiKeys: {
+        openAI: process.env.NEXT_PUBLIC_DEMO_OPENAI_KEY || '',
+        elevenlabs: process.env.NEXT_PUBLIC_DEMO_ELEVENLABS_KEY || ''
+      },
       personality: {
         systemPrompt: `You are a professional website greeter and sales assistant. Your goals:
 - Warmly welcome visitors and understand their needs
@@ -412,9 +435,13 @@ Be friendly but professional, solution-focused, and helpful. Keep responses conc
         language: 'en'
       },
       voice: {
-        speakerX: 0,
-        speakerY: 0,
-        preset: 'mature'
+        voiceId: 'pNInz6obpgDQGcFmaJgB', // Adam - male, professional, deep
+        elevenlabsVoiceSettings: {
+          stability: 0.7,
+          similarity_boost: 0.75,
+          style: 0.2,
+          use_speaker_boost: true
+        }
       },
       vrmModel: {
         name: 'Rabbit',
