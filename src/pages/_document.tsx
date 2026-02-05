@@ -19,6 +19,7 @@ export default function Document() {
           href="https://fonts.googleapis.com/css2?family=M+PLUS+2&family=Montserrat&display=swap"
           rel="stylesheet"
         />
+        <script defer src="https://umami.adntgv.com/script.js" data-website-id="2434612b-3425-4bfb-b635-3c8e4bc9e2a2"></script>
       </Head>
       <body style={{ backgroundImage: `url(${buildUrl("/bg-c.png")})` }}>
         <Main />
